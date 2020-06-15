@@ -11,13 +11,13 @@ output:
     toc_float:
       collapsed: false
     number_sections: true
-bibliography: ../refs.bib      
+bibliography: refs.bib      
 ---
 
 All code for this document is located at [here](https://raw.githubusercontent.com/muschellij2/osler/master/gt3x_limb_data/index.R).
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = FALSE, comment = "")
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, comment = "")
 ```
 
 ```{r packages}
@@ -29,6 +29,7 @@ library(tidyr)
 library(readr)
 library(lubridate)
 library(kableExtra)
+library(corrr)
 ```
 
 # Data
@@ -57,7 +58,7 @@ data_dir = tempdir()
 data_dir = here::here("data")
 ```
 
-```{r}
+```{r get_fs_data}
 x = rfigshare::fs_details("11916087")
 
 files = x$files
@@ -70,7 +71,7 @@ meta = all_files %>%
   filter(grepl("Meta", name))
 df = all_files %>% 
   filter(grepl("gt3x", name))
-df %>% knitr::kable() %>% head()
+df %>% head %>% knitr::kable() 
 ```
 
 We need to add the data path so that it's a full file name:
@@ -88,7 +89,7 @@ df = df %>%
                         "group_without_prosthesis")) %>% 
   mutate(article_id = basename(download_url)) %>% 
   mutate(outfile = file.path(data_dir, group, basename(file)))
-df %>% knitr::kable() %>% head()
+df %>% head() %>% knitr::kable() 
 ```
 
 
@@ -129,7 +130,7 @@ meta = meta %>%
 meta = meta %>% 
   mutate( `Time_since_limb_loss_(years)` = ifelse(
     `Time_since_limb_loss_(years)` == "Congenital", 0,
-        `Time_since_limb_loss_(years)`)
+    `Time_since_limb_loss_(years)`)
   )
 meta %>% 
   knitr::kable() %>% 
@@ -199,7 +200,7 @@ acc$header %>%
 data[iid, c("Gender", "Age")]
 ```
 
-```{r}
+```{r create_functions}
 calculate_ai = function(df, epoch = "1 min") {
   sec_df = df %>% 
     mutate(
@@ -238,12 +239,12 @@ calculate_measures = function(df, epoch = "1 min") {
 ```
 
 We will calculate MIMS units with the `MIMSunit` package:
-```{r}
+```{r make_measures}
 df = acc$data.out
 df = df %>% 
   rename(HEADER_TIME_STAMP = time) %>% 
   select(HEADER_TIME_STAMP, X, Y, Z)
-measures = calculate_measures(df)
+system.time({measures = calculate_measures(df)})
 ```
 
 ```{r MIMS}
@@ -252,25 +253,21 @@ hdr = acc$header %>%
   filter(Field %in% c("Acceleration Min", "Acceleration Max")) %>% 
   mutate(Value = as.numeric(Value))
 dynamic_range = range(hdr$Value)
-mims = df %>% 
-  mims_unit(epoch = "1 min", 
-            dynamic_range = dynamic_range)
+system.time({
+  mims = df %>% 
+    mims_unit(epoch = "1 min", 
+              dynamic_range = dynamic_range)
+})
 measures = full_join(measures, mims)
-
 ```
 
 
 
-
-
-
-
-
-
-
-
-
-
+```{r corr}
+library(corrr)
+measures %>% select(-HEADER_TIME_STAMP) %>% 
+  correlate()
+```
 
 
 
