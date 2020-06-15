@@ -1,0 +1,281 @@
+---
+title: "Analysis of Raw GT3X files to Summary Measures in Chadwell et. al Data"
+author: "John Muschelli"
+date: '`r Sys.Date()`'
+output: 
+  html_document:
+    keep_md: true
+    theme: cosmo
+    toc: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+    number_sections: true
+bibliography: ../refs.bib      
+---
+
+All code for this document is located at [here](https://raw.githubusercontent.com/muschellij2/osler/master/gt3x_limb_data/index.R).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE, comment = "")
+```
+
+```{r packages}
+library(SummarizedActigraphy)
+library(read.gt3x)
+library(dplyr)
+library(readxl)
+library(tidyr)
+library(readr)
+library(lubridate)
+library(kableExtra)
+```
+
+# Data
+
+The data is from @chadwell_kenney_granat_thies_galpin_head_2019.  The figshare project for this data is located at https://springernature.figshare.com/collections/Upper_limb_activity_of_twenty_myoelectric_prosthesis_users_and_twenty_healthy_anatomically_intact_adults_/4457855. The gt3x data is located at https://springernature.figshare.com/articles/Unprocessed_raw_30Hz_acceleration_data_stored_as_gt3x/7946189.  
+
+The whole data can be downloaded from [Figshare](https://springernature.figshare.com/articles/Unprocessed_raw_30Hz_acceleration_data_stored_as_gt3x/7946189) directly or can be downloaded for each gt3x file from the [Duplicated Data Figshare]().
+
+## Data Description
+
+The data consists of 40 subjects, 20 with prostheses, 20 without.  Each wore tri-axial Actigraph watches for 7 days, one on each hand.  The metadata/demographics is located at [Demog Figshare]()
+
+```{r auth, include=FALSE}
+token_file = here::here("fs_token.rds")
+if (file.exists(token_file)) {
+  token = readr::read_rds(token_file)
+  assign("oauth", token, envir = rfigshare:::FigshareAuthCache)
+}
+```
+
+```{r, echo = TRUE, eval = FALSE}
+data_dir = tempdir()
+```
+
+```{r, eval = TRUE, echo = FALSE}
+data_dir = here::here("data")
+```
+
+```{r}
+x = rfigshare::fs_details("11916087")
+
+files = x$files
+files = lapply(files, function(x) {
+  as.data.frame(x[c("download_url", "name", "id", "size")],
+                stringsAsFactors = FALSE)
+})
+all_files = dplyr::bind_rows(files)
+meta = all_files %>% 
+  filter(grepl("Meta", name))
+df = all_files %>% 
+  filter(grepl("gt3x", name))
+df %>% knitr::kable() %>% head()
+```
+
+We need to add the data path so that it's a full file name:
+
+
+```{r filedf}
+df = df %>% 
+  rename(file = name) %>% 
+  tidyr::separate(file, into = c("id", "serial", "date"), sep = "_",
+                  remove = FALSE) %>% 
+  mutate(date = sub(".gt3x.*", "", date)) %>% 
+  mutate(date = lubridate::ymd(date)) %>% 
+  mutate(group = ifelse(grepl("^PU", basename(file)), 
+                        "group_with_prosthesis",
+                        "group_without_prosthesis")) %>% 
+  mutate(article_id = basename(download_url)) %>% 
+  mutate(outfile = file.path(data_dir, group, basename(file)))
+df %>% knitr::kable() %>% head()
+```
+
+
+## Demographics data
+
+```{r meta}
+metadata = file.path(data_dir, "Metadata.xlsx")
+if (!file.exists(metadata)) {
+  out = download.file(meta$download_url, destfile = metadata)
+}
+meta = readxl::read_excel(metadata)
+bad_col = grepl("^\\.\\.", colnames(meta))
+colnames(meta)[bad_col] = NA
+potential_headers = rbind(colnames(meta), meta[1:2, ])
+potential_headers = apply(potential_headers, 2, function(x) {
+  x = paste(na.omit(x), collapse = "")
+  x = sub(" .csv", ".csv", x)
+  x = sub(" .wav", ".wav", x)
+  x = gsub(" ", "_", x)
+  x
+})
+colnames(meta) = potential_headers
+meta = meta[-c(1:2),]
+meta = meta %>% 
+  rename(id = Participant_Identifier)
+meta = meta %>% 
+  filter(!is.na(id),
+         id != "Participant Identifier") %>% 
+  mutate_all(.funs = function(x) gsub("ü", "yes", x))
+meta = meta %>% 
+  mutate_at(
+    .vars = vars(
+      Age,
+      `Time_since_prescription_of_a_myoelectric_prosthesis_(years)`
+    ),
+    readr::parse_number
+  ) 
+meta = meta %>% 
+  mutate( `Time_since_limb_loss_(years)` = ifelse(
+    `Time_since_limb_loss_(years)` == "Congenital", 0,
+        `Time_since_limb_loss_(years)`)
+  )
+meta %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling()
+```
+
+# Packages
+
+THe `read.gt3x` and `AGread` packages can read gt3x files, but only the `read.gt3x` package can read in the old GT3X format from NHANES 2003-2006.  Thus, we will use that package to read the `gt3x` format.  If you need additional information, such as temperature, lux, etc, you may want to try `AGread::read_gt3x`.  Additionally, the `read.gt3x` package can read in `gt3x` files that have been zipped, including gzipped (extension `gz`), bzipped (`bz2`), or xzipped (`xz`).
+
+THe `SummarizedActigraphy::read_actigraphy` wraps the `read.gt3x` functionality, and puts the output format to the `AccData` format, which is common in the `GGIR` package.  The `read_actigraphy` also tries to read other formats, by using `GGIR::g.readaccfile` and other `GGIR` functionality.  
+
+
+```{r merge}
+data = full_join(meta, df)
+```
+
+## Read in one file
+
+
+Here we will read in one file:
+
+```{r readin}
+iid = sample(nrow(df), 1)
+idf = df[iid, ]
+if (!file.exists(idf$outfile)) {
+  out = curl::curl_download(idf$download_url, destfile = idf$outfile)
+}
+acc = read.gt3x(idf$outfile, verbose = FALSE, 
+                asDataFrame = TRUE, imputeZeroes = TRUE)
+acc = read_actigraphy(idf$outfile, verbose = FALSE)
+head(acc$data.out)
+options(digits.secs = 2)
+head(acc$data.out)
+acc$freq
+```
+
+Let's look at the number of measurements per second to see the true sampling rate:
+
+```{r sample_size}
+res = acc$data.out %>% 
+  mutate(dt = floor_date(time, "seconds")) %>% 
+  group_by(dt) %>% 
+  count()
+table(res$n)
+```
+
+```{r p_diff}
+library(ggplot2)
+res = acc$data.out %>% 
+  mutate(day = floor_date(time, "day"),
+         time = hms::as_hms(time)) %>% 
+  mutate(day = difftime(day, day[1], units = "days")) %>% 
+  tidyr::gather(key = direction, value = accel, -time, -day)
+# res %>% 
+#   filter(day == 1) %>% 
+#   ggplot(aes(x = time, y = accel, colour = direction)) + 
+#   geom_line()
+```
+
+
+Here we can do a simple data check:
+```{r header}
+acc$header
+acc$header %>% 
+  filter(Field %in% c("Sex", "Age", "Side"))
+data[iid, c("Gender", "Age")]
+```
+
+```{r}
+calculate_ai = function(df, epoch = "1 min") {
+  sec_df = df %>% 
+    mutate(
+      HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, "1 sec")) %>% 
+    group_by(HEADER_TIME_STAMP) %>% 
+    summarise(
+      AI = sqrt((var(X) + var(Y) + var(Z))/3),
+    )
+  sec_df %>% mutate(
+    HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, epoch)) %>% 
+    group_by(HEADER_TIME_STAMP) %>% 
+    summarise(
+      AI = sum(AI)
+    )
+}
+
+calculate_mad = function(df, epoch = "1 min") {
+  df %>% 
+    mutate(         
+      r = sqrt(X^2+Y^2+Z^2),
+      HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, epoch)) %>% 
+    group_by(HEADER_TIME_STAMP) %>% 
+    summarise(
+      SD = sd(r),
+      MAD = mean(abs(r - mean(r))),
+      MEDAD = median(abs(r - mean(r)))
+    )
+}
+calculate_measures = function(df, epoch = "1 min") {
+  ai0 = calculate_ai(df, epoch = epoch)
+  mad = calculate_mad(df, epoch = epoch)
+  res = full_join(ai0, mad)
+  res
+}
+
+```
+
+We will calculate MIMS units with the `MIMSunit` package:
+```{r}
+df = acc$data.out
+df = df %>% 
+  rename(HEADER_TIME_STAMP = time) %>% 
+  select(HEADER_TIME_STAMP, X, Y, Z)
+measures = calculate_measures(df)
+```
+
+```{r MIMS}
+library(MIMSunit)
+hdr = acc$header %>% 
+  filter(Field %in% c("Acceleration Min", "Acceleration Max")) %>% 
+  mutate(Value = as.numeric(Value))
+dynamic_range = range(hdr$Value)
+mims = df %>% 
+  mims_unit(epoch = "1 min", 
+            dynamic_range = dynamic_range)
+measures = full_join(measures, mims)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# References
