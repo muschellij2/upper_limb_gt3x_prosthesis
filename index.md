@@ -546,6 +546,8 @@ table(res$n)
 604800 
 ```
 
+# Plot the data
+
 
 ```r
 library(ggplot2)
@@ -608,6 +610,7 @@ fix_zeros = function(df, fill_in = TRUE) {
 }
 ```
 
+# Simple Data Checks
 
 Here we can do a simple data check:
 
@@ -656,6 +659,8 @@ data[iid, c("Gender", "Age")]
 1 F         24
 ```
 
+## Calculate Activity Measures
+
 
 ```r
 calculate_ai = function(df, epoch = "1 min") {
@@ -694,6 +699,8 @@ calculate_measures = function(df, epoch = "1 min") {
   res
 }
 ```
+
+## Idle Sleep Mode
 
 As the `imputeZeros` function in `read.gt3x` puts zeros for the idle sleep mode in ActiGraph, we need to repeat the measure to mimic the ActiGraph software:
 
@@ -774,6 +781,8 @@ Joining, by = "HEADER_TIME_STAMP"
  46.605   5.001  56.325 
 ```
 
+### MIMS Units
+
 We will calculate MIMS units with the `MIMSunit` package:
 
 
@@ -819,6 +828,8 @@ Joining, by = "HEADER_TIME_STAMP"
 ```
 
 
+### Correlation of Measures
+
 We can show the correlation of the measures with the others, noting that some of these have very high correlation.
 
 
@@ -853,6 +864,9 @@ Missing treated using: 'pairwise.complete.obs'
 10 MEDAD MIMS_UNIT 0.880
 ```
 
+
+# Average Day 
+
 Now we can create an average day profile.  We will calculate the mean value of these functions for each minute separately:
 
 ```r
@@ -879,6 +893,8 @@ average_day %>%
 ```
 
 ![](index_files/figure-html/avg-2.png)<!-- -->
+
+## 1440 Format 
 
 We can also make the data 1440 format:
 

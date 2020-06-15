@@ -195,6 +195,8 @@ res = acc$data.out %>%
 table(res$n)
 ```
 
+# Plot the data
+
 ```{r p_diff, dependson="readin"}
 library(ggplot2)
 res = acc$data.out %>% 
@@ -247,6 +249,7 @@ fix_zeros = function(df, fill_in = TRUE) {
 }
 ```
 
+# Simple Data Checks
 
 Here we can do a simple data check:
 ```{r header}
@@ -255,6 +258,8 @@ acc$header %>%
   filter(Field %in% c("Sex", "Age", "Side"))
 data[iid, c("Gender", "Age")]
 ```
+
+## Calculate Activity Measures
 
 ```{r create_functions}
 calculate_ai = function(df, epoch = "1 min") {
@@ -295,6 +300,8 @@ calculate_measures = function(df, epoch = "1 min") {
 
 ```
 
+## Idle Sleep Mode
+
 As the `imputeZeros` function in `read.gt3x` puts zeros for the idle sleep mode in ActiGraph, we need to repeat the measure to mimic the ActiGraph software:
 
 ```{r zeroes}
@@ -317,6 +324,8 @@ We may want to remove these rows, but we're trying to mimic ActiGraph output.  N
 system.time({measures = calculate_measures(df)})
 ```
 
+### MIMS Units
+
 We will calculate MIMS units with the `MIMSunit` package:
 
 ```{r MIMS, dependson="zeroes"}
@@ -334,6 +343,8 @@ measures = full_join(measures, mims)
 ```
 
 
+### Correlation of Measures
+
 We can show the correlation of the measures with the others, noting that some of these have very high correlation.
 
 ```{r corr, dependson="zeroes"}
@@ -344,6 +355,9 @@ measures %>%
   stretch(remove.dups = TRUE, na.rm = TRUE) %>% 
   arrange(desc(r))
 ```
+
+
+# Average Day 
 
 Now we can create an average day profile.  We will calculate the mean value of these functions for each minute separately:
 ```{r avg}
@@ -364,6 +378,8 @@ average_day %>%
   ggplot(aes(x = HEADER_TIME_STAMP, y = MAD)) +
   geom_line()
 ```
+
+## 1440 Format 
 
 We can also make the data 1440 format:
 
