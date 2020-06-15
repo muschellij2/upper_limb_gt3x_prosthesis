@@ -345,9 +345,37 @@ measures %>%
   arrange(desc(r))
 ```
 
-Now we can create an average day profile:
+Now we can create an average day profile.  We will calculate the mean value of these functions for each minute separately:
 ```{r avg}
+to_minute = function(x) {
+  x = format(x, "%H:%M:%S")
+  x = hms::as_hms(x)
+  x
+}
+average_day = measures %>% 
+  mutate(HEADER_TIME_STAMP = to_minute(HEADER_TIME_STAMP)) %>% 
+  group_by(HEADER_TIME_STAMP) %>% 
+  summarise_at(vars(AI, SD, MAD, MEDAD), mean, na.rm = TRUE)
+average_day %>%
+  ggplot(aes(x = HEADER_TIME_STAMP, y = AI)) +
+  geom_line()
 
+average_day %>%
+  ggplot(aes(x = HEADER_TIME_STAMP, y = MAD)) +
+  geom_line()
+```
+
+We can also make the data 1440 format:
+
+```{r make1440}
+measures1440 = measures %>% 
+  select(HEADER_TIME_STAMP, AI) %>% 
+  mutate(
+    date = lubridate::as_date(HEADER_TIME_STAMP),
+    HEADER_TIME_STAMP = to_minute(HEADER_TIME_STAMP)) %>% 
+  mutate(HEADER_TIME_STAMP = sprintf("MIN_%04.0f", as.numeric(HEADER_TIME_STAMP)/60)) %>% 
+  spread(HEADER_TIME_STAMP, value = AI)
+head(measures1440)
 ```
 
 

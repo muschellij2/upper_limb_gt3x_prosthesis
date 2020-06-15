@@ -11,7 +11,9 @@ output:
     toc_float:
       collapsed: false
     number_sections: true
-bibliography: refs.bib      
+bibliography: refs.bib  
+editor_options: 
+  chunk_output_type: console    
 ---
 
 All code for this document is located at [here](https://raw.githubusercontent.com/muschellij2/osler/master/gt3x_limb_data/index.R).
@@ -20,62 +22,16 @@ All code for this document is located at [here](https://raw.githubusercontent.co
 
 
 ```r
+# remotes::install_github("muschellij2/SummarizedActigraphy")
 library(SummarizedActigraphy)
+# remotes::install_github("THLfi/read.gt3x")
 library(read.gt3x)
 library(dplyr)
-```
-
-```
-
-Attaching package: 'dplyr'
-```
-
-```
-The following objects are masked from 'package:stats':
-
-    filter, lag
-```
-
-```
-The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union
-```
-
-```r
 library(readxl)
 library(tidyr)
 library(readr)
 library(lubridate)
-```
-
-```
-
-Attaching package: 'lubridate'
-```
-
-```
-The following objects are masked from 'package:base':
-
-    date, intersect, setdiff, union
-```
-
-```r
 library(kableExtra)
-```
-
-```
-
-Attaching package: 'kableExtra'
-```
-
-```
-The following object is masked from 'package:dplyr':
-
-    group_rows
-```
-
-```r
 library(corrr)
 ```
 
@@ -528,8 +484,8 @@ idf = df[iid, ]
 if (!file.exists(idf$outfile)) {
   out = curl::curl_download(idf$download_url, destfile = idf$outfile)
 }
-acc = read.gt3x(idf$outfile, verbose = FALSE, 
-                asDataFrame = TRUE, imputeZeroes = TRUE)
+# acc = read.gt3x(idf$outfile, verbose = FALSE, 
+#                 asDataFrame = TRUE, imputeZeroes = TRUE)
 acc = read_actigraphy(idf$outfile, verbose = FALSE)
 head(acc$data.out)
 ```
@@ -596,12 +552,60 @@ library(ggplot2)
 res = acc$data.out %>% 
   mutate(day = floor_date(time, "day"),
          time = hms::as_hms(time)) %>% 
-  mutate(day = difftime(day, day[1], units = "days")) %>% 
+  mutate(day = difftime(day, day[1], units = "days")) 
+res = res %>%
+  filter(day == 1)
+res = res %>% 
+  filter(between(time, 
+                 hms::as_hms("10:00:00"),
+                 hms::as_hms("10:30:00"))
+         ) 
+```
+
+```
+Warning: between() called on numeric vector with S3 class
+```
+
+```r
+res = res %>% 
   tidyr::gather(key = direction, value = accel, -time, -day)
-# res %>% 
-#   filter(day == 1) %>% 
-#   ggplot(aes(x = time, y = accel, colour = direction)) + 
-#   geom_line()
+
+res %>%
+  ggplot(aes(x = time, y = accel, colour = direction)) +
+  geom_line() +
+  theme(
+  legend.background = element_rect(
+    fill = "transparent"),
+  legend.position = c(0.5, 0.9),
+  legend.direction = "horizontal",
+  legend.key = element_rect(fill = "transparent", 
+                            color = "transparent") ) 
+```
+
+![](index_files/figure-html/p_diff-1.png)<!-- -->
+
+
+```r
+check_zeros = function(df) {
+  any(rowSums(df[, c("X", "Y", "Z")] == 0) == 3)
+}
+fix_zeros = function(df, fill_in = TRUE) {
+  zero = rowSums(df[, c("X", "Y", "Z")] == 0) == 3
+  names(zero) = NULL
+  df$X[zero] = NA
+  df$Y[zero] = NA
+  df$Z[zero] = NA
+  if (fill_in) {
+    df$X = zoo::na.locf(df$X, na.rm = FALSE)
+    df$Y = zoo::na.locf(df$Y, na.rm = FALSE)
+    df$Z = zoo::na.locf(df$Z, na.rm = FALSE)
+    
+    df$X[ is.na(df$X)] = 0
+    df$Y[ is.na(df$Y)] = 0
+    df$Z[ is.na(df$Z)] = 0
+  }
+  df
+}
 ```
 
 
@@ -654,27 +658,6 @@ data[iid, c("Gender", "Age")]
 
 
 ```r
-check_zeros = function(df) {
-  any(rowSums(df[, c("X", "Y", "Z")] == 0) == 3)
-}
-fix_zeros = function(df, fill_in = TRUE) {
-  zero = rowSums(df[, c("X", "Y", "Z")] == 0) == 3
-  names(zero) = NULL
-  df$X[zero] = NA
-  df$Y[zero] = NA
-  df$Z[zero] = NA
-  if (fill_in) {
-    df$X = zoo::na.locf(df$X, na.rm = FALSE)
-    df$Y = zoo::na.locf(df$Y, na.rm = FALSE)
-    df$Z = zoo::na.locf(df$Z, na.rm = FALSE)
-    
-    df$X[ is.na(df$X)] = 0
-    df$Y[ is.na(df$Y)] = 0
-    df$Z[ is.na(df$Z)] = 0
-  }
-  df
-}
-
 calculate_ai = function(df, epoch = "1 min") {
   sec_df = df %>% 
     mutate(
@@ -712,19 +695,65 @@ calculate_measures = function(df, epoch = "1 min") {
 }
 ```
 
-We will calculate MIMS units with the `MIMSunit` package:
+As the `imputeZeros` function in `read.gt3x` puts zeros for the idle sleep mode in ActiGraph, we need to repeat the measure to mimic the ActiGraph software:
+
 
 ```r
 df = acc$data.out
 df = df %>% 
   rename(HEADER_TIME_STAMP = time) %>% 
   select(HEADER_TIME_STAMP, X, Y, Z)
-check_zeros(df)
+zero_rows = rowSums(df[, c("X", "Y", "Z")] == 0) == 3
+any(zero_rows)
 ```
 
 ```
 [1] TRUE
 ```
+
+```r
+ind = unname(which(zero_rows))
+ind = head(ind)
+ind = c(min(ind) - (1:5), ind)
+as.data.frame(df[ind,])
+```
+
+```
+           HEADER_TIME_STAMP      X      Y      Z
+25920 2017-03-24 16:44:23.97 -0.196 -0.636 -0.748
+25919 2017-03-24 16:44:23.93 -0.194 -0.639 -0.745
+25918 2017-03-24 16:44:23.90 -0.196 -0.642 -0.751
+25917 2017-03-24 16:44:23.86 -0.196 -0.639 -0.748
+25916 2017-03-24 16:44:23.82 -0.196 -0.639 -0.748
+25921 2017-03-24 16:44:24.00  0.000  0.000  0.000
+25922 2017-03-24 16:44:24.02  0.000  0.000  0.000
+25923 2017-03-24 16:44:24.06  0.000  0.000  0.000
+25924 2017-03-24 16:44:24.09  0.000  0.000  0.000
+25925 2017-03-24 16:44:24.13  0.000  0.000  0.000
+25926 2017-03-24 16:44:24.17  0.000  0.000  0.000
+```
+
+```r
+df = fix_zeros(df)
+as.data.frame(df[ind,])
+```
+
+```
+           HEADER_TIME_STAMP      X      Y      Z
+25920 2017-03-24 16:44:23.97 -0.196 -0.636 -0.748
+25919 2017-03-24 16:44:23.93 -0.194 -0.639 -0.745
+25918 2017-03-24 16:44:23.90 -0.196 -0.642 -0.751
+25917 2017-03-24 16:44:23.86 -0.196 -0.639 -0.748
+25916 2017-03-24 16:44:23.82 -0.196 -0.639 -0.748
+25921 2017-03-24 16:44:24.00 -0.196 -0.636 -0.748
+25922 2017-03-24 16:44:24.02 -0.196 -0.636 -0.748
+25923 2017-03-24 16:44:24.06 -0.196 -0.636 -0.748
+25924 2017-03-24 16:44:24.09 -0.196 -0.636 -0.748
+25925 2017-03-24 16:44:24.13 -0.196 -0.636 -0.748
+25926 2017-03-24 16:44:24.17 -0.196 -0.636 -0.748
+```
+We may want to remove these rows, but we're trying to mimic ActiGraph output.  Now we can calculate a set of "measures" that are estimates of activity.  Those include AI, MAD, and SD.  I have re-implemented the method from the `ActivityIndex` package, with the restriction that no estimate of $\sigma_0$ is given, which is the estimate of the standard deviation when the device is at rest. We see, even for a relatively large number of values, it is pretty quick to compute:
+
 
 ```r
 system.time({measures = calculate_measures(df)})
@@ -742,8 +771,10 @@ Joining, by = "HEADER_TIME_STAMP"
 
 ```
    user  system elapsed 
- 39.288   3.172  52.711 
+ 46.605   5.001  56.325 
 ```
+
+We will calculate MIMS units with the `MIMSunit` package:
 
 
 ```r
@@ -776,7 +807,7 @@ Call `lifecycle::last_warnings()` to see where this warning was generated.
 
 ```
     user   system  elapsed 
- 696.519  258.977 1504.837 
+ 645.443  236.380 1085.030 
 ```
 
 ```r
@@ -788,6 +819,7 @@ Joining, by = "HEADER_TIME_STAMP"
 ```
 
 
+We can show the correlation of the measures with the others, noting that some of these have very high correlation.
 
 
 ```r
@@ -809,19 +841,96 @@ Missing treated using: 'pairwise.complete.obs'
 # A tibble: 10 x 3
    x     y             r
    <chr> <chr>     <dbl>
- 1 AI    MIMS_UNIT 0.986
- 2 SD    MAD       0.979
- 3 MAD   MEDAD     0.977
- 4 SD    MEDAD     0.927
- 5 SD    MIMS_UNIT 0.620
- 6 MAD   MIMS_UNIT 0.545
- 7 AI    SD        0.534
- 8 MEDAD MIMS_UNIT 0.519
- 9 AI    MAD       0.460
-10 AI    MEDAD     0.446
+ 1 AI    MIMS_UNIT 0.995
+ 2 AI    SD        0.986
+ 3 SD    MAD       0.979
+ 4 SD    MIMS_UNIT 0.975
+ 5 AI    MAD       0.972
+ 6 MAD   MEDAD     0.971
+ 7 MAD   MIMS_UNIT 0.954
+ 8 SD    MEDAD     0.909
+ 9 AI    MEDAD     0.905
+10 MEDAD MIMS_UNIT 0.880
 ```
 
+Now we can create an average day profile.  We will calculate the mean value of these functions for each minute separately:
 
+```r
+to_minute = function(x) {
+  x = format(x, "%H:%M:%S")
+  x = hms::as_hms(x)
+  x
+}
+average_day = measures %>% 
+  mutate(HEADER_TIME_STAMP = to_minute(HEADER_TIME_STAMP)) %>% 
+  group_by(HEADER_TIME_STAMP) %>% 
+  summarise_at(vars(AI, SD, MAD, MEDAD), mean, na.rm = TRUE)
+average_day %>%
+  ggplot(aes(x = HEADER_TIME_STAMP, y = AI)) +
+  geom_line()
+```
+
+![](index_files/figure-html/avg-1.png)<!-- -->
+
+```r
+average_day %>%
+  ggplot(aes(x = HEADER_TIME_STAMP, y = MAD)) +
+  geom_line()
+```
+
+![](index_files/figure-html/avg-2.png)<!-- -->
+
+We can also make the data 1440 format:
+
+
+```r
+measures1440 = measures %>% 
+  select(HEADER_TIME_STAMP, AI) %>% 
+  mutate(
+    date = lubridate::as_date(HEADER_TIME_STAMP),
+    HEADER_TIME_STAMP = to_minute(HEADER_TIME_STAMP)) %>% 
+  mutate(HEADER_TIME_STAMP = sprintf("MIN_%04.0f", as.numeric(HEADER_TIME_STAMP)/60)) %>% 
+  spread(HEADER_TIME_STAMP, value = AI)
+head(measures1440)
+```
+
+```
+# A tibble: 6 x 1,441
+  date       MIN_0000 MIN_0001 MIN_0002 MIN_0003 MIN_0004 MIN_0005 MIN_0006
+  <date>        <dbl>    <dbl>    <dbl>    <dbl>    <dbl>    <dbl>    <dbl>
+1 2017-03-24       NA       NA       NA       NA   NA        NA          NA
+2 2017-03-25        0        0        0        0    0.476     2.03        0
+3 2017-03-26        0        0        0        0    0         0           0
+4 2017-03-27        0        0        0        0    0         0           0
+5 2017-03-28        0        0        0        0    0         0           0
+6 2017-03-29        0        0        0        0    0         0           0
+# … with 1,433 more variables: MIN_0007 <dbl>, MIN_0008 <dbl>, MIN_0009 <dbl>,
+#   MIN_0010 <dbl>, MIN_0011 <dbl>, MIN_0012 <dbl>, MIN_0013 <dbl>,
+#   MIN_0014 <dbl>, MIN_0015 <dbl>, MIN_0016 <dbl>, MIN_0017 <dbl>,
+#   MIN_0018 <dbl>, MIN_0019 <dbl>, MIN_0020 <dbl>, MIN_0021 <dbl>,
+#   MIN_0022 <dbl>, MIN_0023 <dbl>, MIN_0024 <dbl>, MIN_0025 <dbl>,
+#   MIN_0026 <dbl>, MIN_0027 <dbl>, MIN_0028 <dbl>, MIN_0029 <dbl>,
+#   MIN_0030 <dbl>, MIN_0031 <dbl>, MIN_0032 <dbl>, MIN_0033 <dbl>,
+#   MIN_0034 <dbl>, MIN_0035 <dbl>, MIN_0036 <dbl>, MIN_0037 <dbl>,
+#   MIN_0038 <dbl>, MIN_0039 <dbl>, MIN_0040 <dbl>, MIN_0041 <dbl>,
+#   MIN_0042 <dbl>, MIN_0043 <dbl>, MIN_0044 <dbl>, MIN_0045 <dbl>,
+#   MIN_0046 <dbl>, MIN_0047 <dbl>, MIN_0048 <dbl>, MIN_0049 <dbl>,
+#   MIN_0050 <dbl>, MIN_0051 <dbl>, MIN_0052 <dbl>, MIN_0053 <dbl>,
+#   MIN_0054 <dbl>, MIN_0055 <dbl>, MIN_0056 <dbl>, MIN_0057 <dbl>,
+#   MIN_0058 <dbl>, MIN_0059 <dbl>, MIN_0060 <dbl>, MIN_0061 <dbl>,
+#   MIN_0062 <dbl>, MIN_0063 <dbl>, MIN_0064 <dbl>, MIN_0065 <dbl>,
+#   MIN_0066 <dbl>, MIN_0067 <dbl>, MIN_0068 <dbl>, MIN_0069 <dbl>,
+#   MIN_0070 <dbl>, MIN_0071 <dbl>, MIN_0072 <dbl>, MIN_0073 <dbl>,
+#   MIN_0074 <dbl>, MIN_0075 <dbl>, MIN_0076 <dbl>, MIN_0077 <dbl>,
+#   MIN_0078 <dbl>, MIN_0079 <dbl>, MIN_0080 <dbl>, MIN_0081 <dbl>,
+#   MIN_0082 <dbl>, MIN_0083 <dbl>, MIN_0084 <dbl>, MIN_0085 <dbl>,
+#   MIN_0086 <dbl>, MIN_0087 <dbl>, MIN_0088 <dbl>, MIN_0089 <dbl>,
+#   MIN_0090 <dbl>, MIN_0091 <dbl>, MIN_0092 <dbl>, MIN_0093 <dbl>,
+#   MIN_0094 <dbl>, MIN_0095 <dbl>, MIN_0096 <dbl>, MIN_0097 <dbl>,
+#   MIN_0098 <dbl>, MIN_0099 <dbl>, MIN_0100 <dbl>, MIN_0101 <dbl>,
+#   MIN_0102 <dbl>, MIN_0103 <dbl>, MIN_0104 <dbl>, MIN_0105 <dbl>,
+#   MIN_0106 <dbl>, …
+```
 
 
 
