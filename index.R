@@ -1,31 +1,9 @@
----
-title: "Analysis of Raw GT3X files to Summary Measures in Chadwell et. al Data"
-author: "John Muschelli"
-date: '`r Sys.Date()`'
-output: 
-  html_document:
-    keep_md: true
-    theme: cosmo
-    toc: true
-    toc_depth: 3
-    toc_float:
-      collapsed: false
-    number_sections: true
-bibliography: refs.bib  
-editor_options: 
-  chunk_output_type: console    
----
-
-All code for this document is located at [here](https://raw.githubusercontent.com/muschellij2/osler/master/gt3x_limb_data/index.R).
-
-```{r setup, include=FALSE}
+## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE, comment = "")
-```
 
-```{r packages}
-# remotes::install_github("muschellij2/SummarizedActigraphy")
+
+## ----packages-----------------------------------------------------------------
 library(SummarizedActigraphy)
-# remotes::install_github("THLfi/read.gt3x")
 library(read.gt3x)
 library(dplyr)
 library(readxl)
@@ -34,35 +12,25 @@ library(readr)
 library(lubridate)
 library(kableExtra)
 library(corrr)
-```
 
-# Data
 
-The data is from @chadwell_kenney_granat_thies_galpin_head_2019.  The figshare project for this data is located at https://springernature.figshare.com/collections/Upper_limb_activity_of_twenty_myoelectric_prosthesis_users_and_twenty_healthy_anatomically_intact_adults_/4457855. The gt3x data is located at https://springernature.figshare.com/articles/Unprocessed_raw_30Hz_acceleration_data_stored_as_gt3x/7946189.  
-
-The whole data can be downloaded from [Figshare](https://springernature.figshare.com/articles/Unprocessed_raw_30Hz_acceleration_data_stored_as_gt3x/7946189) directly or can be downloaded for each gt3x file from the [Duplicated Data Figshare]().
-
-## Data Description
-
-The data consists of 40 subjects, 20 with prostheses, 20 without.  Each wore tri-axial Actigraph watches for 7 days, one on each hand.  The metadata/demographics is located at [Demog Figshare]()
-
-```{r auth, include=FALSE}
+## ----auth, include=FALSE------------------------------------------------------
 token_file = here::here("fs_token.rds")
 if (file.exists(token_file)) {
   token = readr::read_rds(token_file)
   assign("oauth", token, envir = rfigshare:::FigshareAuthCache)
 }
-```
 
-```{r, echo = TRUE, eval = FALSE}
-data_dir = tempdir()
-```
 
-```{r, eval = TRUE, echo = FALSE}
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+## data_dir = tempdir()
+
+
+## ---- eval = TRUE, echo = FALSE-----------------------------------------------
 data_dir = here::here("data")
-```
 
-```{r get_fs_data}
+
+## ----get_fs_data--------------------------------------------------------------
 outfile = here::here("data", "file_info.rds")
 if (file.exists(token_file) && !file.exists(outfile)) {
   x = rfigshare::fs_details("11916087")
@@ -85,12 +53,9 @@ df %>%
   head %>% 
   knitr::kable() %>% 
   kableExtra::kable_styling()
-```
-
-We need to add the data path so that it's a full file name:
 
 
-```{r filedf}
+## ----filedf-------------------------------------------------------------------
 df = df %>% 
   rename(file = name) %>% 
   tidyr::separate(file, into = c("id", "serial", "date"), sep = "_",
@@ -106,12 +71,9 @@ df %>%
   head() %>% 
   knitr::kable() %>% 
   kableExtra::kable_styling()
-```
 
 
-## Demographics data
-
-```{r meta}
+## ----meta---------------------------------------------------------------------
 metadata = file.path(data_dir, "Metadata.xlsx")
 if (!file.exists(metadata)) {
   out = download.file(meta$download_url, destfile = metadata)
@@ -152,79 +114,56 @@ meta %>%
   head %>% 
   knitr::kable() %>% 
   kableExtra::kable_styling()
-```
-
-# Packages
-
-THe `read.gt3x` and `AGread` packages can read gt3x files, but only the `read.gt3x` package can read in the old GT3X format from NHANES 2003-2006.  Thus, we will use that package to read the `gt3x` format.  If you need additional information, such as temperature, lux, etc, you may want to try `AGread::read_gt3x`.  Additionally, the `read.gt3x` package can read in `gt3x` files that have been zipped, including gzipped (extension `gz`), bzipped (`bz2`), or xzipped (`xz`).
-
-THe `SummarizedActigraphy::read_actigraphy` wraps the `read.gt3x` functionality, and puts the output format to the `AccData` format, which is common in the `GGIR` package.  The `read_actigraphy` also tries to read other formats, by using `GGIR::g.readaccfile` and other `GGIR` functionality.  
 
 
-```{r merge}
+## ----merge--------------------------------------------------------------------
 data = full_join(meta, df)
-```
-
-## Read in one file
 
 
-Here we will read in one file:
-
-```{r readin}
+## ----readin-------------------------------------------------------------------
 iid = sample(nrow(df), 1)
 idf = df[iid, ]
 if (!file.exists(idf$outfile)) {
   out = curl::curl_download(idf$download_url, destfile = idf$outfile)
 }
-# acc = read.gt3x(idf$outfile, verbose = FALSE, 
-#                 asDataFrame = TRUE, imputeZeroes = TRUE)
+acc = read.gt3x(idf$outfile, verbose = FALSE, 
+                asDataFrame = TRUE, imputeZeroes = TRUE)
 acc = read_actigraphy(idf$outfile, verbose = FALSE)
 head(acc$data.out)
 options(digits.secs = 2)
 head(acc$data.out)
 acc$freq
-```
 
-Let's look at the number of measurements per second to see the true sampling rate:
 
-```{r sample_size, dependson="readin"}
+## ----sample_size--------------------------------------------------------------
 res = acc$data.out %>% 
   mutate(dt = floor_date(time, "seconds")) %>% 
   group_by(dt) %>% 
   count()
 table(res$n)
-```
 
-```{r p_diff, dependson="readin"}
+
+## ----p_diff-------------------------------------------------------------------
 library(ggplot2)
 res = acc$data.out %>% 
   mutate(day = floor_date(time, "day"),
          time = hms::as_hms(time)) %>% 
-  mutate(day = difftime(day, day[1], units = "days")) 
-res = res %>%
-  filter(day == 1)
-res = res %>% 
-  filter(between(time, 
-                 hms::as_hms("10:00:00"),
-                 hms::as_hms("10:30:00"))
-         ) 
-res = res %>% 
+  mutate(day = difftime(day, day[1], units = "days")) %>% 
   tidyr::gather(key = direction, value = accel, -time, -day)
+# res %>% 
+#   filter(day == 1) %>% 
+#   ggplot(aes(x = time, y = accel, colour = direction)) + 
+#   geom_line()
 
-res %>%
-  ggplot(aes(x = time, y = accel, colour = direction)) +
-  geom_line() +
-  theme(
-  legend.background = element_rect(
-    fill = "transparent"),
-  legend.position = c(0.5, 0.9),
-  legend.direction = "horizontal",
-  legend.key = element_rect(fill = "transparent", 
-                            color = "transparent") ) 
-  
-```
 
-```{r}
+## ----header-------------------------------------------------------------------
+acc$header
+acc$header %>% 
+  filter(Field %in% c("Sex", "Age", "Side"))
+data[iid, c("Gender", "Age")]
+
+
+## ----create_functions---------------------------------------------------------
 check_zeros = function(df) {
   any(rowSums(df[, c("X", "Y", "Z")] == 0) == 3)
 }
@@ -245,18 +184,7 @@ fix_zeros = function(df, fill_in = TRUE) {
   }
   df
 }
-```
 
-
-Here we can do a simple data check:
-```{r header}
-acc$header
-acc$header %>% 
-  filter(Field %in% c("Sex", "Age", "Side"))
-data[iid, c("Gender", "Age")]
-```
-
-```{r create_functions}
 calculate_ai = function(df, epoch = "1 min") {
   sec_df = df %>% 
     mutate(
@@ -293,33 +221,18 @@ calculate_measures = function(df, epoch = "1 min") {
   res
 }
 
-```
 
-As the `imputeZeros` function in `read.gt3x` puts zeros for the idle sleep mode in ActiGraph, we need to repeat the measure to mimic the ActiGraph software:
 
-```{r zeroes}
+## ----make_measures------------------------------------------------------------
 df = acc$data.out
 df = df %>% 
   rename(HEADER_TIME_STAMP = time) %>% 
   select(HEADER_TIME_STAMP, X, Y, Z)
-zero_rows = rowSums(df[, c("X", "Y", "Z")] == 0) == 3
-any(zero_rows)
-ind = unname(which(zero_rows))
-ind = head(ind)
-ind = c(min(ind) - (1:5), ind)
-as.data.frame(df[ind,])
-df = fix_zeros(df)
-as.data.frame(df[ind,])
-```
-We may want to remove these rows, but we're trying to mimic ActiGraph output.  Now we can calculate a set of "measures" that are estimates of activity.  Those include AI, MAD, and SD.  I have re-implemented the method from the `ActivityIndex` package, with the restriction that no estimate of $\sigma_0$ is given, which is the estimate of the standard deviation when the device is at rest. We see, even for a relatively large number of values, it is pretty quick to compute:
-
-```{r make_measures, dependson="zeroes"}
+check_zeros(df)
 system.time({measures = calculate_measures(df)})
-```
 
-We will calculate MIMS units with the `MIMSunit` package:
 
-```{r MIMS, dependson="zeroes"}
+## ----MIMS---------------------------------------------------------------------
 library(MIMSunit)
 hdr = acc$header %>% 
   filter(Field %in% c("Acceleration Min", "Acceleration Max")) %>% 
@@ -331,27 +244,13 @@ system.time({
               dynamic_range = dynamic_range)
 })
 measures = full_join(measures, mims)
-```
 
 
-We can show the correlation of the measures with the others, noting that some of these have very high correlation.
-
-```{r corr, dependson="zeroes"}
+## ----corr---------------------------------------------------------------------
 library(corrr)
 measures %>% 
   select(-HEADER_TIME_STAMP) %>% 
   correlate() %>% 
   stretch(remove.dups = TRUE, na.rm = TRUE) %>% 
   arrange(desc(r))
-```
 
-Now we can create an average day profile:
-```{r avg}
-
-```
-
-
-
-
-
-# References

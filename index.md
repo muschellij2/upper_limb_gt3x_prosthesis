@@ -100,31 +100,78 @@ data_dir = tempdir()
 
 
 ```r
-x = rfigshare::fs_details("11916087")
-```
-
-```
-No encoding supplied: defaulting to UTF-8.
-No encoding supplied: defaulting to UTF-8.
-```
-
-```r
-files = x$files
-files = lapply(files, function(x) {
-  as.data.frame(x[c("download_url", "name", "id", "size")],
-                stringsAsFactors = FALSE)
-})
-all_files = dplyr::bind_rows(files)
+outfile = here::here("data", "file_info.rds")
+if (file.exists(token_file) && !file.exists(outfile)) {
+  x = rfigshare::fs_details("11916087")
+  
+  files = x$files
+  files = lapply(files, function(x) {
+    as.data.frame(x[c("download_url", "name", "id", "size")],
+                  stringsAsFactors = FALSE)
+  })
+  all_files = dplyr::bind_rows(files)
+  readr::write_rds(all_files, outfile)
+} else {
+  all_files = readr::read_rds(outfile)
+}
 meta = all_files %>% 
   filter(grepl("Meta", name))
 df = all_files %>% 
   filter(grepl("gt3x", name))
-df %>% knitr::kable() %>% head()
+df %>% 
+  head %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling()
 ```
 
-```
-[1] "<table>\n <thead>\n  <tr>\n   <th style=\"text-align:left;\"> download_url </th>\n   <th style=\"text-align:left;\"> name </th>\n   <th style=\"text-align:right;\"> id </th>\n   <th style=\"text-align:left;\"> size </th>\n  </tr>\n </thead>\n<tbody>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855555 </td>\n   <td style=\"text-align:left;\"> AI1_NEO1B41100255_2016-10-17.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855555 </td>\n   <td style=\"text-align:left;\"> 33.59 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855558 </td>\n   <td style=\"text-align:left;\"> AI1_NEO1F09120035_2016-10-17.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855558 </td>\n   <td style=\"text-align:left;\"> 36.04 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855561 </td>\n   <td style=\"text-align:left;\"> AI2_NEO1B41100262_2016-10-17.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855561 </td>\n   <td style=\"text-align:left;\"> 39.84 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855564 </td>\n   <td style=\"text-align:left;\"> AI2_NEO1F16120038_2016-10-17.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855564 </td>\n   <td style=\"text-align:left;\"> 41.67 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855567 </td>\n   <td style=\"text-align:left;\"> AI3_CLE2B21130054_2017-06-02.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855567 </td>\n   <td style=\"text-align:left;\"> 46.45 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855573 </td>\n   <td style=\"text-align:left;\"> AI3_CLE2B21130055_2017-06-02.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855573 </td>\n   <td style=\"text-align:left;\"> 44.68 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855576 </td>\n   <td style=\"text-align:left;\"> AI4_MOS2D09170393_2017-06-06.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855576 </td>\n   <td style=\"text-align:left;\"> 36.13 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855582 </td>\n   <td style=\"text-align:left;\"> AI4_MOS2D09170398_2017-06-06.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855582 </td>\n   <td style=\"text-align:left;\"> 36.47 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855588 </td>\n   <td style=\"text-align:left;\"> AI5_NEO1B41100262_2017-06-13.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855588 </td>\n   <td style=\"text-align:left;\"> 33.70 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855591 </td>\n   <td style=\"text-align:left;\"> AI5_NEO1F16120038_2017-06-13.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855591 </td>\n   <td style=\"text-align:left;\"> 32.65 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855639 </td>\n   <td style=\"text-align:left;\"> AI6_NEO1B41100255_2017-06-17.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855639 </td>\n   <td style=\"text-align:left;\"> 44.02 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855642 </td>\n   <td style=\"text-align:left;\"> AI6_NEO1F16120039_2017-06-17.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855642 </td>\n   <td style=\"text-align:left;\"> 35.96 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855645 </td>\n   <td style=\"text-align:left;\"> AI7_MOS2D09170393_2017-06-17.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855645 </td>\n   <td style=\"text-align:left;\"> 39.66 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855648 </td>\n   <td style=\"text-align:left;\"> AI7_MOS2D09170398_2017-06-17.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855648 </td>\n   <td style=\"text-align:left;\"> 38.59 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855651 </td>\n   <td style=\"text-align:left;\"> AI8_CLE2B21130054_2017-08-14.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855651 </td>\n   <td style=\"text-align:left;\"> 33.83 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855654 </td>\n   <td style=\"text-align:left;\"> AI8_CLE2B21130055_2017-08-14.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855654 </td>\n   <td style=\"text-align:left;\"> 33.84 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855657 </td>\n   <td style=\"text-align:left;\"> AI9_NEO1B41100255_2017-06-27.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855657 </td>\n   <td style=\"text-align:left;\"> 36.65 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855660 </td>\n   <td style=\"text-align:left;\"> AI9_NEO1F16120039_2017-06-27.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855660 </td>\n   <td style=\"text-align:left;\"> 33.61 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855663 </td>\n   <td style=\"text-align:left;\"> AI10_CLE2B21130054_2017-07-05.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855663 </td>\n   <td style=\"text-align:left;\"> 38.40 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855666 </td>\n   <td style=\"text-align:left;\"> AI10_CLE2B21130055_2017-07-05.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855666 </td>\n   <td style=\"text-align:left;\"> 36.25 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855669 </td>\n   <td style=\"text-align:left;\"> AI11_MOS2D09170393_2017-09-25.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855669 </td>\n   <td style=\"text-align:left;\"> 35.82 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855672 </td>\n   <td style=\"text-align:left;\"> AI11_MOS2D09170398_2017-09-25.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855672 </td>\n   <td style=\"text-align:left;\"> 35.21 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855675 </td>\n   <td style=\"text-align:left;\"> AI12_NEO1F09120034_2017-09-25.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855675 </td>\n   <td style=\"text-align:left;\"> 38.94 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855678 </td>\n   <td style=\"text-align:left;\"> AI12_NEO1F09120035_2017-09-25.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855678 </td>\n   <td style=\"text-align:left;\"> 37.06 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855681 </td>\n   <td style=\"text-align:left;\"> AI13_CLE2B21130054_2017-09-23.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855681 </td>\n   <td style=\"text-align:left;\"> 43.46 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855684 </td>\n   <td style=\"text-align:left;\"> AI13_CLE2B21130055_2017-09-23.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855684 </td>\n   <td style=\"text-align:left;\"> 44.94 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855687 </td>\n   <td style=\"text-align:left;\"> AI14_NEO1F16120038_2017-09-23.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855687 </td>\n   <td style=\"text-align:left;\"> 41.77 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855690 </td>\n   <td style=\"text-align:left;\"> AI14_NEO1F16120039_2017-09-23.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855690 </td>\n   <td style=\"text-align:left;\"> 41.24 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855693 </td>\n   <td style=\"text-align:left;\"> AI15_MOS2D09170393_2017-10-30.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855693 </td>\n   <td style=\"text-align:left;\"> 27.94 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855696 </td>\n   <td style=\"text-align:left;\"> AI15_MOS2D09170398_2017-10-30.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855696 </td>\n   <td style=\"text-align:left;\"> 26.89 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855753 </td>\n   <td style=\"text-align:left;\"> AI16_MOS2D20170459_2017-11-08.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855753 </td>\n   <td style=\"text-align:left;\"> 33.53 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855762 </td>\n   <td style=\"text-align:left;\"> AI16_MOS2D20170460_2017-11-08.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855762 </td>\n   <td style=\"text-align:left;\"> 32.87 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855765 </td>\n   <td style=\"text-align:left;\"> AI17_CLE2B21130054_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855765 </td>\n   <td style=\"text-align:left;\"> 31.97 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855768 </td>\n   <td style=\"text-align:left;\"> AI17_CLE2B21130055_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855768 </td>\n   <td style=\"text-align:left;\"> 32.62 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855771 </td>\n   <td style=\"text-align:left;\"> AI18_NEO1F09120034_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855771 </td>\n   <td style=\"text-align:left;\"> 34.47 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855774 </td>\n   <td style=\"text-align:left;\"> AI18_NEO1F09120035_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855774 </td>\n   <td style=\"text-align:left;\"> 32.12 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855777 </td>\n   <td style=\"text-align:left;\"> AI19_NEO1F16120038_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855777 </td>\n   <td style=\"text-align:left;\"> 38.46 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855780 </td>\n   <td style=\"text-align:left;\"> AI19_NEO1F16120039_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855780 </td>\n   <td style=\"text-align:left;\"> 37.39 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855783 </td>\n   <td style=\"text-align:left;\"> AI20_MOS2D20170459_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855783 </td>\n   <td style=\"text-align:left;\"> 37.41 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855786 </td>\n   <td style=\"text-align:left;\"> AI20_MOS2D20170460_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855786 </td>\n   <td style=\"text-align:left;\"> 35.79 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855795 </td>\n   <td style=\"text-align:left;\"> PU1_NEO1F09120035_2016-04-18.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855795 </td>\n   <td style=\"text-align:left;\"> 41.55 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855798 </td>\n   <td style=\"text-align:left;\"> PU1_NEO1F16120038_2016-04-18.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855798 </td>\n   <td style=\"text-align:left;\"> 19.03 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855801 </td>\n   <td style=\"text-align:left;\"> PU2_NEO1B41100255_2016-04-21.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855801 </td>\n   <td style=\"text-align:left;\"> 6.34 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855804 </td>\n   <td style=\"text-align:left;\"> PU2_NEO1B41100262_2016-04-21.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855804 </td>\n   <td style=\"text-align:left;\"> 43.08 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855807 </td>\n   <td style=\"text-align:left;\"> PU3_CLE2B21130054_2017-03-16.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855807 </td>\n   <td style=\"text-align:left;\"> 11.67 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855810 </td>\n   <td style=\"text-align:left;\"> PU3_CLE2B21130055_2017-03-16.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855810 </td>\n   <td style=\"text-align:left;\"> 14.90 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855813 </td>\n   <td style=\"text-align:left;\"> PU4_NEO1B41100262_2017-03-23.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855813 </td>\n   <td style=\"text-align:left;\"> 43.55 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855816 </td>\n   <td style=\"text-align:left;\"> PU4_NEO1F09120034_2017-03-23.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855816 </td>\n   <td style=\"text-align:left;\"> 34.04 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855819 </td>\n   <td style=\"text-align:left;\"> PU5_NEO1F09120035_2017-03-24.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855819 </td>\n   <td style=\"text-align:left;\"> 16.13 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855822 </td>\n   <td style=\"text-align:left;\"> PU5_NEO1F16120038_2017-03-24.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855822 </td>\n   <td style=\"text-align:left;\"> 33.47 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855825 </td>\n   <td style=\"text-align:left;\"> PU6_CLE2B21130054_2017-03-28.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855825 </td>\n   <td style=\"text-align:left;\"> 44.21 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855828 </td>\n   <td style=\"text-align:left;\"> PU6_CLE2B21130055_2017-03-28.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855828 </td>\n   <td style=\"text-align:left;\"> 34.61 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855831 </td>\n   <td style=\"text-align:left;\"> PU7_NEO1B41100262_2017-05-09.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855831 </td>\n   <td style=\"text-align:left;\"> 1.43 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855834 </td>\n   <td style=\"text-align:left;\"> PU7_NEO1F16120038_2017-05-09.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855834 </td>\n   <td style=\"text-align:left;\"> 33.76 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855837 </td>\n   <td style=\"text-align:left;\"> PU8_NEO1B41100262_2017-05-18.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855837 </td>\n   <td style=\"text-align:left;\"> 20.26 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855840 </td>\n   <td style=\"text-align:left;\"> PU8_NEO1F16120038_2017-05-18.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855840 </td>\n   <td style=\"text-align:left;\"> 2.18 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855843 </td>\n   <td style=\"text-align:left;\"> PU9_NEO1B41100255_2017-06-05.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855843 </td>\n   <td style=\"text-align:left;\"> 39.53 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855846 </td>\n   <td style=\"text-align:left;\"> PU9_NEO1F16120039_2017-06-05.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855846 </td>\n   <td style=\"text-align:left;\"> 30.72 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855849 </td>\n   <td style=\"text-align:left;\"> PU10_NEO1F09120034_2017-06-07.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855849 </td>\n   <td style=\"text-align:left;\"> 31.72 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855852 </td>\n   <td style=\"text-align:left;\"> PU10_NEO1F09120035_2017-06-07.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855852 </td>\n   <td style=\"text-align:left;\"> 38.88 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855855 </td>\n   <td style=\"text-align:left;\"> PU11_MOS2D09170393_2017-08-11.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855855 </td>\n   <td style=\"text-align:left;\"> 44.10 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855858 </td>\n   <td style=\"text-align:left;\"> PU11_MOS2D09170398_2017-08-11.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855858 </td>\n   <td style=\"text-align:left;\"> 18.28 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855861 </td>\n   <td style=\"text-align:left;\"> PU12_NEO1B41100255_2017-07-17.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855861 </td>\n   <td style=\"text-align:left;\"> 12.90 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855864 </td>\n   <td style=\"text-align:left;\"> PU12_NEO1F16120039_2017-07-17.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855864 </td>\n   <td style=\"text-align:left;\"> 31.59 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855867 </td>\n   <td style=\"text-align:left;\"> PU13_NEO1B41100262_2017-07-18.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855867 </td>\n   <td style=\"text-align:left;\"> 41.62 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855870 </td>\n   <td style=\"text-align:left;\"> PU13_NEO1F16120038_2017-07-18.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855870 </td>\n   <td style=\"text-align:left;\"> 7.67 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855873 </td>\n   <td style=\"text-align:left;\"> PU14_NEO1F09120034_2017-08-02.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855873 </td>\n   <td style=\"text-align:left;\"> 36.01 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855876 </td>\n   <td style=\"text-align:left;\"> PU14_NEO1F09120035_2017-08-02.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855876 </td>\n   <td style=\"text-align:left;\"> 20.51 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855879 </td>\n   <td style=\"text-align:left;\"> PU15_NEO1F16120038_2017-08-14.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855879 </td>\n   <td style=\"text-align:left;\"> 24.27 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855882 </td>\n   <td style=\"text-align:left;\"> PU15_NEO1F16120039_2017-08-14.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855882 </td>\n   <td style=\"text-align:left;\"> 20.54 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855885 </td>\n   <td style=\"text-align:left;\"> PU16_NEO1B41100255_2017-09-27.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855885 </td>\n   <td style=\"text-align:left;\"> 15.39 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855888 </td>\n   <td style=\"text-align:left;\"> PU16_NEO1B41100262_2017-09-27.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855888 </td>\n   <td style=\"text-align:left;\"> 37.75 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855891 </td>\n   <td style=\"text-align:left;\"> PU17_CLE2B21130054_2017-10-16.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855891 </td>\n   <td style=\"text-align:left;\"> 9.06 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855894 </td>\n   <td style=\"text-align:left;\"> PU17_CLE2B21130055_2017-10-16.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855894 </td>\n   <td style=\"text-align:left;\"> 26.81 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855897 </td>\n   <td style=\"text-align:left;\"> PU18_NEO1F09120035_2017-10-17.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855897 </td>\n   <td style=\"text-align:left;\"> 1.09 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855900 </td>\n   <td style=\"text-align:left;\"> PU18_NEO1F16120039_2017-10-17.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855900 </td>\n   <td style=\"text-align:left;\"> 33.71 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855903 </td>\n   <td style=\"text-align:left;\"> PU19_NEO1F09120034_2017-10-20.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855903 </td>\n   <td style=\"text-align:left;\"> 39.96 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855906 </td>\n   <td style=\"text-align:left;\"> PU19_NEO1F16120038_2017-10-20.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855906 </td>\n   <td style=\"text-align:left;\"> 22.39 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855909 </td>\n   <td style=\"text-align:left;\"> PU20_MOS2D09170393_2017-11-17.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855909 </td>\n   <td style=\"text-align:left;\"> 19.72 MB </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855912 </td>\n   <td style=\"text-align:left;\"> PU20_MOS2D09170398_2017-11-17.gt3x.gz </td>\n   <td style=\"text-align:right;\"> 21855912 </td>\n   <td style=\"text-align:left;\"> 41.75 MB </td>\n  </tr>\n</tbody>\n</table>"
-```
+<table class="table" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> download_url </th>
+   <th style="text-align:left;"> name </th>
+   <th style="text-align:right;"> id </th>
+   <th style="text-align:left;"> size </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> https://ndownloader.figshare.com/files/21855555 </td>
+   <td style="text-align:left;"> AI1_NEO1B41100255_2016-10-17.gt3x.gz </td>
+   <td style="text-align:right;"> 21855555 </td>
+   <td style="text-align:left;"> 33.59 MB </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> https://ndownloader.figshare.com/files/21855558 </td>
+   <td style="text-align:left;"> AI1_NEO1F09120035_2016-10-17.gt3x.gz </td>
+   <td style="text-align:right;"> 21855558 </td>
+   <td style="text-align:left;"> 36.04 MB </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> https://ndownloader.figshare.com/files/21855561 </td>
+   <td style="text-align:left;"> AI2_NEO1B41100262_2016-10-17.gt3x.gz </td>
+   <td style="text-align:right;"> 21855561 </td>
+   <td style="text-align:left;"> 39.84 MB </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> https://ndownloader.figshare.com/files/21855564 </td>
+   <td style="text-align:left;"> AI2_NEO1F16120038_2016-10-17.gt3x.gz </td>
+   <td style="text-align:right;"> 21855564 </td>
+   <td style="text-align:left;"> 41.67 MB </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> https://ndownloader.figshare.com/files/21855567 </td>
+   <td style="text-align:left;"> AI3_CLE2B21130054_2017-06-02.gt3x.gz </td>
+   <td style="text-align:right;"> 21855567 </td>
+   <td style="text-align:left;"> 46.45 MB </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> https://ndownloader.figshare.com/files/21855573 </td>
+   <td style="text-align:left;"> AI3_CLE2B21130055_2017-06-02.gt3x.gz </td>
+   <td style="text-align:right;"> 21855573 </td>
+   <td style="text-align:left;"> 44.68 MB </td>
+  </tr>
+</tbody>
+</table>
 
 We need to add the data path so that it's a full file name:
 
@@ -142,12 +189,95 @@ df = df %>%
                         "group_without_prosthesis")) %>% 
   mutate(article_id = basename(download_url)) %>% 
   mutate(outfile = file.path(data_dir, group, basename(file)))
-df %>% knitr::kable() %>% head()
+df %>% 
+  head() %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling()
 ```
 
-```
-[1] "<table>\n <thead>\n  <tr>\n   <th style=\"text-align:left;\"> download_url </th>\n   <th style=\"text-align:left;\"> file </th>\n   <th style=\"text-align:left;\"> id </th>\n   <th style=\"text-align:left;\"> serial </th>\n   <th style=\"text-align:left;\"> date </th>\n   <th style=\"text-align:left;\"> size </th>\n   <th style=\"text-align:left;\"> group </th>\n   <th style=\"text-align:left;\"> article_id </th>\n   <th style=\"text-align:left;\"> outfile </th>\n  </tr>\n </thead>\n<tbody>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855555 </td>\n   <td style=\"text-align:left;\"> AI1_NEO1B41100255_2016-10-17.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI1 </td>\n   <td style=\"text-align:left;\"> NEO1B41100255 </td>\n   <td style=\"text-align:left;\"> 2016-10-17 </td>\n   <td style=\"text-align:left;\"> 33.59 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855555 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI1_NEO1B41100255_2016-10-17.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855558 </td>\n   <td style=\"text-align:left;\"> AI1_NEO1F09120035_2016-10-17.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI1 </td>\n   <td style=\"text-align:left;\"> NEO1F09120035 </td>\n   <td style=\"text-align:left;\"> 2016-10-17 </td>\n   <td style=\"text-align:left;\"> 36.04 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855558 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI1_NEO1F09120035_2016-10-17.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855561 </td>\n   <td style=\"text-align:left;\"> AI2_NEO1B41100262_2016-10-17.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI2 </td>\n   <td style=\"text-align:left;\"> NEO1B41100262 </td>\n   <td style=\"text-align:left;\"> 2016-10-17 </td>\n   <td style=\"text-align:left;\"> 39.84 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855561 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI2_NEO1B41100262_2016-10-17.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855564 </td>\n   <td style=\"text-align:left;\"> AI2_NEO1F16120038_2016-10-17.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI2 </td>\n   <td style=\"text-align:left;\"> NEO1F16120038 </td>\n   <td style=\"text-align:left;\"> 2016-10-17 </td>\n   <td style=\"text-align:left;\"> 41.67 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855564 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI2_NEO1F16120038_2016-10-17.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855567 </td>\n   <td style=\"text-align:left;\"> AI3_CLE2B21130054_2017-06-02.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI3 </td>\n   <td style=\"text-align:left;\"> CLE2B21130054 </td>\n   <td style=\"text-align:left;\"> 2017-06-02 </td>\n   <td style=\"text-align:left;\"> 46.45 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855567 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI3_CLE2B21130054_2017-06-02.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855573 </td>\n   <td style=\"text-align:left;\"> AI3_CLE2B21130055_2017-06-02.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI3 </td>\n   <td style=\"text-align:left;\"> CLE2B21130055 </td>\n   <td style=\"text-align:left;\"> 2017-06-02 </td>\n   <td style=\"text-align:left;\"> 44.68 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855573 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI3_CLE2B21130055_2017-06-02.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855576 </td>\n   <td style=\"text-align:left;\"> AI4_MOS2D09170393_2017-06-06.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI4 </td>\n   <td style=\"text-align:left;\"> MOS2D09170393 </td>\n   <td style=\"text-align:left;\"> 2017-06-06 </td>\n   <td style=\"text-align:left;\"> 36.13 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855576 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI4_MOS2D09170393_2017-06-06.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855582 </td>\n   <td style=\"text-align:left;\"> AI4_MOS2D09170398_2017-06-06.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI4 </td>\n   <td style=\"text-align:left;\"> MOS2D09170398 </td>\n   <td style=\"text-align:left;\"> 2017-06-06 </td>\n   <td style=\"text-align:left;\"> 36.47 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855582 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI4_MOS2D09170398_2017-06-06.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855588 </td>\n   <td style=\"text-align:left;\"> AI5_NEO1B41100262_2017-06-13.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI5 </td>\n   <td style=\"text-align:left;\"> NEO1B41100262 </td>\n   <td style=\"text-align:left;\"> 2017-06-13 </td>\n   <td style=\"text-align:left;\"> 33.70 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855588 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI5_NEO1B41100262_2017-06-13.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855591 </td>\n   <td style=\"text-align:left;\"> AI5_NEO1F16120038_2017-06-13.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI5 </td>\n   <td style=\"text-align:left;\"> NEO1F16120038 </td>\n   <td style=\"text-align:left;\"> 2017-06-13 </td>\n   <td style=\"text-align:left;\"> 32.65 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855591 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI5_NEO1F16120038_2017-06-13.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855639 </td>\n   <td style=\"text-align:left;\"> AI6_NEO1B41100255_2017-06-17.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI6 </td>\n   <td style=\"text-align:left;\"> NEO1B41100255 </td>\n   <td style=\"text-align:left;\"> 2017-06-17 </td>\n   <td style=\"text-align:left;\"> 44.02 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855639 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI6_NEO1B41100255_2017-06-17.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855642 </td>\n   <td style=\"text-align:left;\"> AI6_NEO1F16120039_2017-06-17.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI6 </td>\n   <td style=\"text-align:left;\"> NEO1F16120039 </td>\n   <td style=\"text-align:left;\"> 2017-06-17 </td>\n   <td style=\"text-align:left;\"> 35.96 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855642 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI6_NEO1F16120039_2017-06-17.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855645 </td>\n   <td style=\"text-align:left;\"> AI7_MOS2D09170393_2017-06-17.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI7 </td>\n   <td style=\"text-align:left;\"> MOS2D09170393 </td>\n   <td style=\"text-align:left;\"> 2017-06-17 </td>\n   <td style=\"text-align:left;\"> 39.66 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855645 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI7_MOS2D09170393_2017-06-17.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855648 </td>\n   <td style=\"text-align:left;\"> AI7_MOS2D09170398_2017-06-17.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI7 </td>\n   <td style=\"text-align:left;\"> MOS2D09170398 </td>\n   <td style=\"text-align:left;\"> 2017-06-17 </td>\n   <td style=\"text-align:left;\"> 38.59 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855648 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI7_MOS2D09170398_2017-06-17.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855651 </td>\n   <td style=\"text-align:left;\"> AI8_CLE2B21130054_2017-08-14.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI8 </td>\n   <td style=\"text-align:left;\"> CLE2B21130054 </td>\n   <td style=\"text-align:left;\"> 2017-08-14 </td>\n   <td style=\"text-align:left;\"> 33.83 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855651 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI8_CLE2B21130054_2017-08-14.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855654 </td>\n   <td style=\"text-align:left;\"> AI8_CLE2B21130055_2017-08-14.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI8 </td>\n   <td style=\"text-align:left;\"> CLE2B21130055 </td>\n   <td style=\"text-align:left;\"> 2017-08-14 </td>\n   <td style=\"text-align:left;\"> 33.84 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855654 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI8_CLE2B21130055_2017-08-14.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855657 </td>\n   <td style=\"text-align:left;\"> AI9_NEO1B41100255_2017-06-27.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI9 </td>\n   <td style=\"text-align:left;\"> NEO1B41100255 </td>\n   <td style=\"text-align:left;\"> 2017-06-27 </td>\n   <td style=\"text-align:left;\"> 36.65 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855657 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI9_NEO1B41100255_2017-06-27.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855660 </td>\n   <td style=\"text-align:left;\"> AI9_NEO1F16120039_2017-06-27.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI9 </td>\n   <td style=\"text-align:left;\"> NEO1F16120039 </td>\n   <td style=\"text-align:left;\"> 2017-06-27 </td>\n   <td style=\"text-align:left;\"> 33.61 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855660 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI9_NEO1F16120039_2017-06-27.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855663 </td>\n   <td style=\"text-align:left;\"> AI10_CLE2B21130054_2017-07-05.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI10 </td>\n   <td style=\"text-align:left;\"> CLE2B21130054 </td>\n   <td style=\"text-align:left;\"> 2017-07-05 </td>\n   <td style=\"text-align:left;\"> 38.40 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855663 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI10_CLE2B21130054_2017-07-05.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855666 </td>\n   <td style=\"text-align:left;\"> AI10_CLE2B21130055_2017-07-05.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI10 </td>\n   <td style=\"text-align:left;\"> CLE2B21130055 </td>\n   <td style=\"text-align:left;\"> 2017-07-05 </td>\n   <td style=\"text-align:left;\"> 36.25 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855666 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI10_CLE2B21130055_2017-07-05.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855669 </td>\n   <td style=\"text-align:left;\"> AI11_MOS2D09170393_2017-09-25.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI11 </td>\n   <td style=\"text-align:left;\"> MOS2D09170393 </td>\n   <td style=\"text-align:left;\"> 2017-09-25 </td>\n   <td style=\"text-align:left;\"> 35.82 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855669 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI11_MOS2D09170393_2017-09-25.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855672 </td>\n   <td style=\"text-align:left;\"> AI11_MOS2D09170398_2017-09-25.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI11 </td>\n   <td style=\"text-align:left;\"> MOS2D09170398 </td>\n   <td style=\"text-align:left;\"> 2017-09-25 </td>\n   <td style=\"text-align:left;\"> 35.21 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855672 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI11_MOS2D09170398_2017-09-25.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855675 </td>\n   <td style=\"text-align:left;\"> AI12_NEO1F09120034_2017-09-25.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI12 </td>\n   <td style=\"text-align:left;\"> NEO1F09120034 </td>\n   <td style=\"text-align:left;\"> 2017-09-25 </td>\n   <td style=\"text-align:left;\"> 38.94 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855675 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI12_NEO1F09120034_2017-09-25.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855678 </td>\n   <td style=\"text-align:left;\"> AI12_NEO1F09120035_2017-09-25.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI12 </td>\n   <td style=\"text-align:left;\"> NEO1F09120035 </td>\n   <td style=\"text-align:left;\"> 2017-09-25 </td>\n   <td style=\"text-align:left;\"> 37.06 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855678 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI12_NEO1F09120035_2017-09-25.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855681 </td>\n   <td style=\"text-align:left;\"> AI13_CLE2B21130054_2017-09-23.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI13 </td>\n   <td style=\"text-align:left;\"> CLE2B21130054 </td>\n   <td style=\"text-align:left;\"> 2017-09-23 </td>\n   <td style=\"text-align:left;\"> 43.46 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855681 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI13_CLE2B21130054_2017-09-23.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855684 </td>\n   <td style=\"text-align:left;\"> AI13_CLE2B21130055_2017-09-23.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI13 </td>\n   <td style=\"text-align:left;\"> CLE2B21130055 </td>\n   <td style=\"text-align:left;\"> 2017-09-23 </td>\n   <td style=\"text-align:left;\"> 44.94 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855684 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI13_CLE2B21130055_2017-09-23.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855687 </td>\n   <td style=\"text-align:left;\"> AI14_NEO1F16120038_2017-09-23.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI14 </td>\n   <td style=\"text-align:left;\"> NEO1F16120038 </td>\n   <td style=\"text-align:left;\"> 2017-09-23 </td>\n   <td style=\"text-align:left;\"> 41.77 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855687 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI14_NEO1F16120038_2017-09-23.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855690 </td>\n   <td style=\"text-align:left;\"> AI14_NEO1F16120039_2017-09-23.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI14 </td>\n   <td style=\"text-align:left;\"> NEO1F16120039 </td>\n   <td style=\"text-align:left;\"> 2017-09-23 </td>\n   <td style=\"text-align:left;\"> 41.24 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855690 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI14_NEO1F16120039_2017-09-23.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855693 </td>\n   <td style=\"text-align:left;\"> AI15_MOS2D09170393_2017-10-30.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI15 </td>\n   <td style=\"text-align:left;\"> MOS2D09170393 </td>\n   <td style=\"text-align:left;\"> 2017-10-30 </td>\n   <td style=\"text-align:left;\"> 27.94 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855693 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI15_MOS2D09170393_2017-10-30.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855696 </td>\n   <td style=\"text-align:left;\"> AI15_MOS2D09170398_2017-10-30.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI15 </td>\n   <td style=\"text-align:left;\"> MOS2D09170398 </td>\n   <td style=\"text-align:left;\"> 2017-10-30 </td>\n   <td style=\"text-align:left;\"> 26.89 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855696 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI15_MOS2D09170398_2017-10-30.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855753 </td>\n   <td style=\"text-align:left;\"> AI16_MOS2D20170459_2017-11-08.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI16 </td>\n   <td style=\"text-align:left;\"> MOS2D20170459 </td>\n   <td style=\"text-align:left;\"> 2017-11-08 </td>\n   <td style=\"text-align:left;\"> 33.53 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855753 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI16_MOS2D20170459_2017-11-08.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855762 </td>\n   <td style=\"text-align:left;\"> AI16_MOS2D20170460_2017-11-08.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI16 </td>\n   <td style=\"text-align:left;\"> MOS2D20170460 </td>\n   <td style=\"text-align:left;\"> 2017-11-08 </td>\n   <td style=\"text-align:left;\"> 32.87 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855762 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI16_MOS2D20170460_2017-11-08.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855765 </td>\n   <td style=\"text-align:left;\"> AI17_CLE2B21130054_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI17 </td>\n   <td style=\"text-align:left;\"> CLE2B21130054 </td>\n   <td style=\"text-align:left;\"> 2017-11-20 </td>\n   <td style=\"text-align:left;\"> 31.97 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855765 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI17_CLE2B21130054_2017-11-20.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855768 </td>\n   <td style=\"text-align:left;\"> AI17_CLE2B21130055_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI17 </td>\n   <td style=\"text-align:left;\"> CLE2B21130055 </td>\n   <td style=\"text-align:left;\"> 2017-11-20 </td>\n   <td style=\"text-align:left;\"> 32.62 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855768 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI17_CLE2B21130055_2017-11-20.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855771 </td>\n   <td style=\"text-align:left;\"> AI18_NEO1F09120034_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI18 </td>\n   <td style=\"text-align:left;\"> NEO1F09120034 </td>\n   <td style=\"text-align:left;\"> 2017-11-20 </td>\n   <td style=\"text-align:left;\"> 34.47 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855771 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI18_NEO1F09120034_2017-11-20.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855774 </td>\n   <td style=\"text-align:left;\"> AI18_NEO1F09120035_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI18 </td>\n   <td style=\"text-align:left;\"> NEO1F09120035 </td>\n   <td style=\"text-align:left;\"> 2017-11-20 </td>\n   <td style=\"text-align:left;\"> 32.12 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855774 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI18_NEO1F09120035_2017-11-20.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855777 </td>\n   <td style=\"text-align:left;\"> AI19_NEO1F16120038_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI19 </td>\n   <td style=\"text-align:left;\"> NEO1F16120038 </td>\n   <td style=\"text-align:left;\"> 2017-11-20 </td>\n   <td style=\"text-align:left;\"> 38.46 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855777 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI19_NEO1F16120038_2017-11-20.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855780 </td>\n   <td style=\"text-align:left;\"> AI19_NEO1F16120039_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI19 </td>\n   <td style=\"text-align:left;\"> NEO1F16120039 </td>\n   <td style=\"text-align:left;\"> 2017-11-20 </td>\n   <td style=\"text-align:left;\"> 37.39 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855780 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI19_NEO1F16120039_2017-11-20.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855783 </td>\n   <td style=\"text-align:left;\"> AI20_MOS2D20170459_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI20 </td>\n   <td style=\"text-align:left;\"> MOS2D20170459 </td>\n   <td style=\"text-align:left;\"> 2017-11-20 </td>\n   <td style=\"text-align:left;\"> 37.41 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855783 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI20_MOS2D20170459_2017-11-20.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855786 </td>\n   <td style=\"text-align:left;\"> AI20_MOS2D20170460_2017-11-20.gt3x.gz </td>\n   <td style=\"text-align:left;\"> AI20 </td>\n   <td style=\"text-align:left;\"> MOS2D20170460 </td>\n   <td style=\"text-align:left;\"> 2017-11-20 </td>\n   <td style=\"text-align:left;\"> 35.79 MB </td>\n   <td style=\"text-align:left;\"> group_without_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855786 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI20_MOS2D20170460_2017-11-20.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855795 </td>\n   <td style=\"text-align:left;\"> PU1_NEO1F09120035_2016-04-18.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU1 </td>\n   <td style=\"text-align:left;\"> NEO1F09120035 </td>\n   <td style=\"text-align:left;\"> 2016-04-18 </td>\n   <td style=\"text-align:left;\"> 41.55 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855795 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU1_NEO1F09120035_2016-04-18.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855798 </td>\n   <td style=\"text-align:left;\"> PU1_NEO1F16120038_2016-04-18.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU1 </td>\n   <td style=\"text-align:left;\"> NEO1F16120038 </td>\n   <td style=\"text-align:left;\"> 2016-04-18 </td>\n   <td style=\"text-align:left;\"> 19.03 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855798 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU1_NEO1F16120038_2016-04-18.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855801 </td>\n   <td style=\"text-align:left;\"> PU2_NEO1B41100255_2016-04-21.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU2 </td>\n   <td style=\"text-align:left;\"> NEO1B41100255 </td>\n   <td style=\"text-align:left;\"> 2016-04-21 </td>\n   <td style=\"text-align:left;\"> 6.34 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855801 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU2_NEO1B41100255_2016-04-21.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855804 </td>\n   <td style=\"text-align:left;\"> PU2_NEO1B41100262_2016-04-21.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU2 </td>\n   <td style=\"text-align:left;\"> NEO1B41100262 </td>\n   <td style=\"text-align:left;\"> 2016-04-21 </td>\n   <td style=\"text-align:left;\"> 43.08 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855804 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU2_NEO1B41100262_2016-04-21.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855807 </td>\n   <td style=\"text-align:left;\"> PU3_CLE2B21130054_2017-03-16.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU3 </td>\n   <td style=\"text-align:left;\"> CLE2B21130054 </td>\n   <td style=\"text-align:left;\"> 2017-03-16 </td>\n   <td style=\"text-align:left;\"> 11.67 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855807 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU3_CLE2B21130054_2017-03-16.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855810 </td>\n   <td style=\"text-align:left;\"> PU3_CLE2B21130055_2017-03-16.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU3 </td>\n   <td style=\"text-align:left;\"> CLE2B21130055 </td>\n   <td style=\"text-align:left;\"> 2017-03-16 </td>\n   <td style=\"text-align:left;\"> 14.90 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855810 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU3_CLE2B21130055_2017-03-16.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855813 </td>\n   <td style=\"text-align:left;\"> PU4_NEO1B41100262_2017-03-23.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU4 </td>\n   <td style=\"text-align:left;\"> NEO1B41100262 </td>\n   <td style=\"text-align:left;\"> 2017-03-23 </td>\n   <td style=\"text-align:left;\"> 43.55 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855813 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU4_NEO1B41100262_2017-03-23.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855816 </td>\n   <td style=\"text-align:left;\"> PU4_NEO1F09120034_2017-03-23.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU4 </td>\n   <td style=\"text-align:left;\"> NEO1F09120034 </td>\n   <td style=\"text-align:left;\"> 2017-03-23 </td>\n   <td style=\"text-align:left;\"> 34.04 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855816 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU4_NEO1F09120034_2017-03-23.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855819 </td>\n   <td style=\"text-align:left;\"> PU5_NEO1F09120035_2017-03-24.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU5 </td>\n   <td style=\"text-align:left;\"> NEO1F09120035 </td>\n   <td style=\"text-align:left;\"> 2017-03-24 </td>\n   <td style=\"text-align:left;\"> 16.13 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855819 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU5_NEO1F09120035_2017-03-24.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855822 </td>\n   <td style=\"text-align:left;\"> PU5_NEO1F16120038_2017-03-24.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU5 </td>\n   <td style=\"text-align:left;\"> NEO1F16120038 </td>\n   <td style=\"text-align:left;\"> 2017-03-24 </td>\n   <td style=\"text-align:left;\"> 33.47 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855822 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU5_NEO1F16120038_2017-03-24.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855825 </td>\n   <td style=\"text-align:left;\"> PU6_CLE2B21130054_2017-03-28.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU6 </td>\n   <td style=\"text-align:left;\"> CLE2B21130054 </td>\n   <td style=\"text-align:left;\"> 2017-03-28 </td>\n   <td style=\"text-align:left;\"> 44.21 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855825 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU6_CLE2B21130054_2017-03-28.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855828 </td>\n   <td style=\"text-align:left;\"> PU6_CLE2B21130055_2017-03-28.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU6 </td>\n   <td style=\"text-align:left;\"> CLE2B21130055 </td>\n   <td style=\"text-align:left;\"> 2017-03-28 </td>\n   <td style=\"text-align:left;\"> 34.61 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855828 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU6_CLE2B21130055_2017-03-28.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855831 </td>\n   <td style=\"text-align:left;\"> PU7_NEO1B41100262_2017-05-09.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU7 </td>\n   <td style=\"text-align:left;\"> NEO1B41100262 </td>\n   <td style=\"text-align:left;\"> 2017-05-09 </td>\n   <td style=\"text-align:left;\"> 1.43 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855831 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU7_NEO1B41100262_2017-05-09.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855834 </td>\n   <td style=\"text-align:left;\"> PU7_NEO1F16120038_2017-05-09.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU7 </td>\n   <td style=\"text-align:left;\"> NEO1F16120038 </td>\n   <td style=\"text-align:left;\"> 2017-05-09 </td>\n   <td style=\"text-align:left;\"> 33.76 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855834 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU7_NEO1F16120038_2017-05-09.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855837 </td>\n   <td style=\"text-align:left;\"> PU8_NEO1B41100262_2017-05-18.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU8 </td>\n   <td style=\"text-align:left;\"> NEO1B41100262 </td>\n   <td style=\"text-align:left;\"> 2017-05-18 </td>\n   <td style=\"text-align:left;\"> 20.26 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855837 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU8_NEO1B41100262_2017-05-18.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855840 </td>\n   <td style=\"text-align:left;\"> PU8_NEO1F16120038_2017-05-18.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU8 </td>\n   <td style=\"text-align:left;\"> NEO1F16120038 </td>\n   <td style=\"text-align:left;\"> 2017-05-18 </td>\n   <td style=\"text-align:left;\"> 2.18 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855840 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU8_NEO1F16120038_2017-05-18.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855843 </td>\n   <td style=\"text-align:left;\"> PU9_NEO1B41100255_2017-06-05.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU9 </td>\n   <td style=\"text-align:left;\"> NEO1B41100255 </td>\n   <td style=\"text-align:left;\"> 2017-06-05 </td>\n   <td style=\"text-align:left;\"> 39.53 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855843 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU9_NEO1B41100255_2017-06-05.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855846 </td>\n   <td style=\"text-align:left;\"> PU9_NEO1F16120039_2017-06-05.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU9 </td>\n   <td style=\"text-align:left;\"> NEO1F16120039 </td>\n   <td style=\"text-align:left;\"> 2017-06-05 </td>\n   <td style=\"text-align:left;\"> 30.72 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855846 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU9_NEO1F16120039_2017-06-05.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855849 </td>\n   <td style=\"text-align:left;\"> PU10_NEO1F09120034_2017-06-07.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU10 </td>\n   <td style=\"text-align:left;\"> NEO1F09120034 </td>\n   <td style=\"text-align:left;\"> 2017-06-07 </td>\n   <td style=\"text-align:left;\"> 31.72 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855849 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU10_NEO1F09120034_2017-06-07.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855852 </td>\n   <td style=\"text-align:left;\"> PU10_NEO1F09120035_2017-06-07.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU10 </td>\n   <td style=\"text-align:left;\"> NEO1F09120035 </td>\n   <td style=\"text-align:left;\"> 2017-06-07 </td>\n   <td style=\"text-align:left;\"> 38.88 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855852 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU10_NEO1F09120035_2017-06-07.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855855 </td>\n   <td style=\"text-align:left;\"> PU11_MOS2D09170393_2017-08-11.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU11 </td>\n   <td style=\"text-align:left;\"> MOS2D09170393 </td>\n   <td style=\"text-align:left;\"> 2017-08-11 </td>\n   <td style=\"text-align:left;\"> 44.10 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855855 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU11_MOS2D09170393_2017-08-11.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855858 </td>\n   <td style=\"text-align:left;\"> PU11_MOS2D09170398_2017-08-11.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU11 </td>\n   <td style=\"text-align:left;\"> MOS2D09170398 </td>\n   <td style=\"text-align:left;\"> 2017-08-11 </td>\n   <td style=\"text-align:left;\"> 18.28 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855858 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU11_MOS2D09170398_2017-08-11.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855861 </td>\n   <td style=\"text-align:left;\"> PU12_NEO1B41100255_2017-07-17.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU12 </td>\n   <td style=\"text-align:left;\"> NEO1B41100255 </td>\n   <td style=\"text-align:left;\"> 2017-07-17 </td>\n   <td style=\"text-align:left;\"> 12.90 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855861 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU12_NEO1B41100255_2017-07-17.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855864 </td>\n   <td style=\"text-align:left;\"> PU12_NEO1F16120039_2017-07-17.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU12 </td>\n   <td style=\"text-align:left;\"> NEO1F16120039 </td>\n   <td style=\"text-align:left;\"> 2017-07-17 </td>\n   <td style=\"text-align:left;\"> 31.59 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855864 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU12_NEO1F16120039_2017-07-17.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855867 </td>\n   <td style=\"text-align:left;\"> PU13_NEO1B41100262_2017-07-18.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU13 </td>\n   <td style=\"text-align:left;\"> NEO1B41100262 </td>\n   <td style=\"text-align:left;\"> 2017-07-18 </td>\n   <td style=\"text-align:left;\"> 41.62 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855867 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU13_NEO1B41100262_2017-07-18.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855870 </td>\n   <td style=\"text-align:left;\"> PU13_NEO1F16120038_2017-07-18.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU13 </td>\n   <td style=\"text-align:left;\"> NEO1F16120038 </td>\n   <td style=\"text-align:left;\"> 2017-07-18 </td>\n   <td style=\"text-align:left;\"> 7.67 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855870 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU13_NEO1F16120038_2017-07-18.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855873 </td>\n   <td style=\"text-align:left;\"> PU14_NEO1F09120034_2017-08-02.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU14 </td>\n   <td style=\"text-align:left;\"> NEO1F09120034 </td>\n   <td style=\"text-align:left;\"> 2017-08-02 </td>\n   <td style=\"text-align:left;\"> 36.01 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855873 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU14_NEO1F09120034_2017-08-02.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855876 </td>\n   <td style=\"text-align:left;\"> PU14_NEO1F09120035_2017-08-02.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU14 </td>\n   <td style=\"text-align:left;\"> NEO1F09120035 </td>\n   <td style=\"text-align:left;\"> 2017-08-02 </td>\n   <td style=\"text-align:left;\"> 20.51 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855876 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU14_NEO1F09120035_2017-08-02.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855879 </td>\n   <td style=\"text-align:left;\"> PU15_NEO1F16120038_2017-08-14.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU15 </td>\n   <td style=\"text-align:left;\"> NEO1F16120038 </td>\n   <td style=\"text-align:left;\"> 2017-08-14 </td>\n   <td style=\"text-align:left;\"> 24.27 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855879 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU15_NEO1F16120038_2017-08-14.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855882 </td>\n   <td style=\"text-align:left;\"> PU15_NEO1F16120039_2017-08-14.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU15 </td>\n   <td style=\"text-align:left;\"> NEO1F16120039 </td>\n   <td style=\"text-align:left;\"> 2017-08-14 </td>\n   <td style=\"text-align:left;\"> 20.54 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855882 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU15_NEO1F16120039_2017-08-14.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855885 </td>\n   <td style=\"text-align:left;\"> PU16_NEO1B41100255_2017-09-27.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU16 </td>\n   <td style=\"text-align:left;\"> NEO1B41100255 </td>\n   <td style=\"text-align:left;\"> 2017-09-27 </td>\n   <td style=\"text-align:left;\"> 15.39 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855885 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU16_NEO1B41100255_2017-09-27.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855888 </td>\n   <td style=\"text-align:left;\"> PU16_NEO1B41100262_2017-09-27.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU16 </td>\n   <td style=\"text-align:left;\"> NEO1B41100262 </td>\n   <td style=\"text-align:left;\"> 2017-09-27 </td>\n   <td style=\"text-align:left;\"> 37.75 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855888 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU16_NEO1B41100262_2017-09-27.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855891 </td>\n   <td style=\"text-align:left;\"> PU17_CLE2B21130054_2017-10-16.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU17 </td>\n   <td style=\"text-align:left;\"> CLE2B21130054 </td>\n   <td style=\"text-align:left;\"> 2017-10-16 </td>\n   <td style=\"text-align:left;\"> 9.06 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855891 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU17_CLE2B21130054_2017-10-16.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855894 </td>\n   <td style=\"text-align:left;\"> PU17_CLE2B21130055_2017-10-16.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU17 </td>\n   <td style=\"text-align:left;\"> CLE2B21130055 </td>\n   <td style=\"text-align:left;\"> 2017-10-16 </td>\n   <td style=\"text-align:left;\"> 26.81 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855894 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU17_CLE2B21130055_2017-10-16.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855897 </td>\n   <td style=\"text-align:left;\"> PU18_NEO1F09120035_2017-10-17.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU18 </td>\n   <td style=\"text-align:left;\"> NEO1F09120035 </td>\n   <td style=\"text-align:left;\"> 2017-10-17 </td>\n   <td style=\"text-align:left;\"> 1.09 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855897 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU18_NEO1F09120035_2017-10-17.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855900 </td>\n   <td style=\"text-align:left;\"> PU18_NEO1F16120039_2017-10-17.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU18 </td>\n   <td style=\"text-align:left;\"> NEO1F16120039 </td>\n   <td style=\"text-align:left;\"> 2017-10-17 </td>\n   <td style=\"text-align:left;\"> 33.71 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855900 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU18_NEO1F16120039_2017-10-17.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855903 </td>\n   <td style=\"text-align:left;\"> PU19_NEO1F09120034_2017-10-20.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU19 </td>\n   <td style=\"text-align:left;\"> NEO1F09120034 </td>\n   <td style=\"text-align:left;\"> 2017-10-20 </td>\n   <td style=\"text-align:left;\"> 39.96 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855903 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU19_NEO1F09120034_2017-10-20.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855906 </td>\n   <td style=\"text-align:left;\"> PU19_NEO1F16120038_2017-10-20.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU19 </td>\n   <td style=\"text-align:left;\"> NEO1F16120038 </td>\n   <td style=\"text-align:left;\"> 2017-10-20 </td>\n   <td style=\"text-align:left;\"> 22.39 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855906 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU19_NEO1F16120038_2017-10-20.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855909 </td>\n   <td style=\"text-align:left;\"> PU20_MOS2D09170393_2017-11-17.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU20 </td>\n   <td style=\"text-align:left;\"> MOS2D09170393 </td>\n   <td style=\"text-align:left;\"> 2017-11-17 </td>\n   <td style=\"text-align:left;\"> 19.72 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855909 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU20_MOS2D09170393_2017-11-17.gt3x.gz </td>\n  </tr>\n  <tr>\n   <td style=\"text-align:left;\"> https://ndownloader.figshare.com/files/21855912 </td>\n   <td style=\"text-align:left;\"> PU20_MOS2D09170398_2017-11-17.gt3x.gz </td>\n   <td style=\"text-align:left;\"> PU20 </td>\n   <td style=\"text-align:left;\"> MOS2D09170398 </td>\n   <td style=\"text-align:left;\"> 2017-11-17 </td>\n   <td style=\"text-align:left;\"> 41.75 MB </td>\n   <td style=\"text-align:left;\"> group_with_prosthesis </td>\n   <td style=\"text-align:left;\"> 21855912 </td>\n   <td style=\"text-align:left;\"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU20_MOS2D09170398_2017-11-17.gt3x.gz </td>\n  </tr>\n</tbody>\n</table>"
-```
+<table class="table" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> download_url </th>
+   <th style="text-align:left;"> file </th>
+   <th style="text-align:left;"> id </th>
+   <th style="text-align:left;"> serial </th>
+   <th style="text-align:left;"> date </th>
+   <th style="text-align:left;"> size </th>
+   <th style="text-align:left;"> group </th>
+   <th style="text-align:left;"> article_id </th>
+   <th style="text-align:left;"> outfile </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> https://ndownloader.figshare.com/files/21855555 </td>
+   <td style="text-align:left;"> AI1_NEO1B41100255_2016-10-17.gt3x.gz </td>
+   <td style="text-align:left;"> AI1 </td>
+   <td style="text-align:left;"> NEO1B41100255 </td>
+   <td style="text-align:left;"> 2016-10-17 </td>
+   <td style="text-align:left;"> 33.59 MB </td>
+   <td style="text-align:left;"> group_without_prosthesis </td>
+   <td style="text-align:left;"> 21855555 </td>
+   <td style="text-align:left;"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI1_NEO1B41100255_2016-10-17.gt3x.gz </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> https://ndownloader.figshare.com/files/21855558 </td>
+   <td style="text-align:left;"> AI1_NEO1F09120035_2016-10-17.gt3x.gz </td>
+   <td style="text-align:left;"> AI1 </td>
+   <td style="text-align:left;"> NEO1F09120035 </td>
+   <td style="text-align:left;"> 2016-10-17 </td>
+   <td style="text-align:left;"> 36.04 MB </td>
+   <td style="text-align:left;"> group_without_prosthesis </td>
+   <td style="text-align:left;"> 21855558 </td>
+   <td style="text-align:left;"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI1_NEO1F09120035_2016-10-17.gt3x.gz </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> https://ndownloader.figshare.com/files/21855561 </td>
+   <td style="text-align:left;"> AI2_NEO1B41100262_2016-10-17.gt3x.gz </td>
+   <td style="text-align:left;"> AI2 </td>
+   <td style="text-align:left;"> NEO1B41100262 </td>
+   <td style="text-align:left;"> 2016-10-17 </td>
+   <td style="text-align:left;"> 39.84 MB </td>
+   <td style="text-align:left;"> group_without_prosthesis </td>
+   <td style="text-align:left;"> 21855561 </td>
+   <td style="text-align:left;"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI2_NEO1B41100262_2016-10-17.gt3x.gz </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> https://ndownloader.figshare.com/files/21855564 </td>
+   <td style="text-align:left;"> AI2_NEO1F16120038_2016-10-17.gt3x.gz </td>
+   <td style="text-align:left;"> AI2 </td>
+   <td style="text-align:left;"> NEO1F16120038 </td>
+   <td style="text-align:left;"> 2016-10-17 </td>
+   <td style="text-align:left;"> 41.67 MB </td>
+   <td style="text-align:left;"> group_without_prosthesis </td>
+   <td style="text-align:left;"> 21855564 </td>
+   <td style="text-align:left;"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI2_NEO1F16120038_2016-10-17.gt3x.gz </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> https://ndownloader.figshare.com/files/21855567 </td>
+   <td style="text-align:left;"> AI3_CLE2B21130054_2017-06-02.gt3x.gz </td>
+   <td style="text-align:left;"> AI3 </td>
+   <td style="text-align:left;"> CLE2B21130054 </td>
+   <td style="text-align:left;"> 2017-06-02 </td>
+   <td style="text-align:left;"> 46.45 MB </td>
+   <td style="text-align:left;"> group_without_prosthesis </td>
+   <td style="text-align:left;"> 21855567 </td>
+   <td style="text-align:left;"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI3_CLE2B21130054_2017-06-02.gt3x.gz </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> https://ndownloader.figshare.com/files/21855573 </td>
+   <td style="text-align:left;"> AI3_CLE2B21130055_2017-06-02.gt3x.gz </td>
+   <td style="text-align:left;"> AI3 </td>
+   <td style="text-align:left;"> CLE2B21130055 </td>
+   <td style="text-align:left;"> 2017-06-02 </td>
+   <td style="text-align:left;"> 44.68 MB </td>
+   <td style="text-align:left;"> group_without_prosthesis </td>
+   <td style="text-align:left;"> 21855573 </td>
+   <td style="text-align:left;"> /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI3_CLE2B21130055_2017-06-02.gt3x.gz </td>
+  </tr>
+</tbody>
+</table>
 
 
 ## Demographics data
@@ -204,6 +334,7 @@ meta = meta %>%
     `Time_since_limb_loss_(years)`)
   )
 meta %>% 
+  head %>% 
   knitr::kable() %>% 
   kableExtra::kable_styling()
 ```
@@ -366,754 +497,6 @@ meta %>%
    <td style="text-align:left;"> yes </td>
    <td style="text-align:left;"> Incomplete </td>
   </tr>
-  <tr>
-   <td style="text-align:left;"> PU7 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 50 </td>
-   <td style="text-align:left;"> R* </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1B41100262 </td>
-   <td style="text-align:left;"> NEO1F16120038 </td>
-   <td style="text-align:left;"> 24 </td>
-   <td style="text-align:right;"> 23.0 </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> PU8 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 21 </td>
-   <td style="text-align:left;"> L </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1B41100262 </td>
-   <td style="text-align:left;"> NEO1F16120038 </td>
-   <td style="text-align:left;"> 0 </td>
-   <td style="text-align:right;"> 19.0 </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> PU9 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 49 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1F16120039 </td>
-   <td style="text-align:left;"> NEO1B41100255 </td>
-   <td style="text-align:left;"> 0 </td>
-   <td style="text-align:right;"> 33.0 </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> PU10 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 57 </td>
-   <td style="text-align:left;"> R* </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1F09120034 </td>
-   <td style="text-align:left;"> NEO1F09120035 </td>
-   <td style="text-align:left;"> 25 </td>
-   <td style="text-align:right;"> 21.0 </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> PU11 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 68 </td>
-   <td style="text-align:left;"> L* </td>
-   <td style="text-align:left;"> wGT3X-BT </td>
-   <td style="text-align:left;"> MOS2D09170393 </td>
-   <td style="text-align:left;"> MOS2D09170398 </td>
-   <td style="text-align:left;"> 47 </td>
-   <td style="text-align:right;"> 39.0 </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> Incomplete </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> PU12 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 50 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1B41100255 </td>
-   <td style="text-align:left;"> NEO1F16120039 </td>
-   <td style="text-align:left;"> 0 </td>
-   <td style="text-align:right;"> 1.5 </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> PU13 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 69 </td>
-   <td style="text-align:left;"> L </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1B41100262 </td>
-   <td style="text-align:left;"> NEO1F16120038 </td>
-   <td style="text-align:left;"> 8 </td>
-   <td style="text-align:right;"> 3.0 </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> PU14 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 62 </td>
-   <td style="text-align:left;"> L </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1F09120034 </td>
-   <td style="text-align:left;"> NEO1F09120035 </td>
-   <td style="text-align:left;"> 12 </td>
-   <td style="text-align:right;"> 10.0 </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> Incomplete </td>
-   <td style="text-align:left;"> Incomplete </td>
-   <td style="text-align:left;"> Incomplete </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> PU15 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 46 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1F16120039 </td>
-   <td style="text-align:left;"> NEO1F16120038 </td>
-   <td style="text-align:left;"> 0 </td>
-   <td style="text-align:right;"> 33.0 </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> PU16 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 47 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1B41100255 </td>
-   <td style="text-align:left;"> NEO1B41100262 </td>
-   <td style="text-align:left;"> 0 </td>
-   <td style="text-align:right;"> 34.0 </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> Missing </td>
-   <td style="text-align:left;"> Missing </td>
-   <td style="text-align:left;"> Missing </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> PU17 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 67 </td>
-   <td style="text-align:left;"> R* </td>
-   <td style="text-align:left;"> wGT3X+ </td>
-   <td style="text-align:left;"> CLE2B21130054 </td>
-   <td style="text-align:left;"> CLE2B21130055 </td>
-   <td style="text-align:left;"> 34 </td>
-   <td style="text-align:right;"> 33.0 </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> PU18 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 59 </td>
-   <td style="text-align:left;"> R* </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1F09120035 </td>
-   <td style="text-align:left;"> NEO1F16120039 </td>
-   <td style="text-align:left;"> 15 </td>
-   <td style="text-align:right;"> 14.5 </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> PU19 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 75 </td>
-   <td style="text-align:left;"> L </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1F09120034 </td>
-   <td style="text-align:left;"> NEO1F16120038 </td>
-   <td style="text-align:left;"> 0 </td>
-   <td style="text-align:right;"> 4.5 </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> PU20 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 72 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> wGT3X-BT </td>
-   <td style="text-align:left;"> MOS2D09170393 </td>
-   <td style="text-align:left;"> MOS2D09170398 </td>
-   <td style="text-align:left;"> 0 </td>
-   <td style="text-align:right;"> 5.0 </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI1 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 27 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1F09120035 </td>
-   <td style="text-align:left;"> NEO1B41100255 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI2 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 28 </td>
-   <td style="text-align:left;"> L </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1B41100262 </td>
-   <td style="text-align:left;"> NEO1F16120038 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI3 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 27 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> wGT3X+ </td>
-   <td style="text-align:left;"> CLE2B21130054 </td>
-   <td style="text-align:left;"> CLE2B21130055 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI4 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 33 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> wGT3X-BT </td>
-   <td style="text-align:left;"> MOS2D09170393 </td>
-   <td style="text-align:left;"> MOS2D09170398 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI5 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 24 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1B41100262 </td>
-   <td style="text-align:left;"> NEO1F16120038 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI6 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 61 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1B41100255 </td>
-   <td style="text-align:left;"> NEO1F16120039 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI7 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 61 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> wGT3X-BT </td>
-   <td style="text-align:left;"> MOS2D09170393 </td>
-   <td style="text-align:left;"> MOS2D09170398 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI8 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 61 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> wGT3X+ </td>
-   <td style="text-align:left;"> CLE2B21130054 </td>
-   <td style="text-align:left;"> CLE2B21130055 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI9 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 23 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1B41100255 </td>
-   <td style="text-align:left;"> NEO1F16120039 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI10 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 24 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> wGT3X+ </td>
-   <td style="text-align:left;"> CLE2B21130054 </td>
-   <td style="text-align:left;"> CLE2B21130055 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI11 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 58 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> wGT3X-BT </td>
-   <td style="text-align:left;"> MOS2D09170393 </td>
-   <td style="text-align:left;"> MOS2D09170398 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI12 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 60 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1F09120034 </td>
-   <td style="text-align:left;"> NEO1F09120035 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI13 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 55 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> wGT3X+ </td>
-   <td style="text-align:left;"> CLE2B21130054 </td>
-   <td style="text-align:left;"> CLE2B21130055 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI14 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 57 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1F16120038 </td>
-   <td style="text-align:left;"> NEO1F16120039 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI15 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 40 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> wGT3X-BT </td>
-   <td style="text-align:left;"> MOS2D09170393 </td>
-   <td style="text-align:left;"> MOS2D09170398 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> Missing </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI16 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 50 </td>
-   <td style="text-align:left;"> L </td>
-   <td style="text-align:left;"> wGT3X-BT </td>
-   <td style="text-align:left;"> MOS2D20170460 </td>
-   <td style="text-align:left;"> MOS2D20170459 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI17 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 47 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> wGT3X+ </td>
-   <td style="text-align:left;"> CLE2B21130054 </td>
-   <td style="text-align:left;"> CLE2B21130055 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI18 </td>
-   <td style="text-align:left;"> F </td>
-   <td style="text-align:right;"> 36 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1F09120034 </td>
-   <td style="text-align:left;"> NEO1F09120035 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> Incomplete </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI19 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 41 </td>
-   <td style="text-align:left;"> R </td>
-   <td style="text-align:left;"> GT3X+ </td>
-   <td style="text-align:left;"> NEO1F16120038 </td>
-   <td style="text-align:left;"> NEO1F16120039 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> AI20 </td>
-   <td style="text-align:left;"> M </td>
-   <td style="text-align:right;"> 39 </td>
-   <td style="text-align:left;"> L </td>
-   <td style="text-align:left;"> wGT3X-BT </td>
-   <td style="text-align:left;"> MOS2D20170460 </td>
-   <td style="text-align:left;"> MOS2D20170459 </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> yes </td>
-  </tr>
 </tbody>
 </table>
 
@@ -1271,6 +654,27 @@ data[iid, c("Gender", "Age")]
 
 
 ```r
+check_zeros = function(df) {
+  any(rowSums(df[, c("X", "Y", "Z")] == 0) == 3)
+}
+fix_zeros = function(df, fill_in = TRUE) {
+  zero = rowSums(df[, c("X", "Y", "Z")] == 0) == 3
+  names(zero) = NULL
+  df$X[zero] = NA
+  df$Y[zero] = NA
+  df$Z[zero] = NA
+  if (fill_in) {
+    df$X = zoo::na.locf(df$X, na.rm = FALSE)
+    df$Y = zoo::na.locf(df$Y, na.rm = FALSE)
+    df$Z = zoo::na.locf(df$Z, na.rm = FALSE)
+    
+    df$X[ is.na(df$X)] = 0
+    df$Y[ is.na(df$Y)] = 0
+    df$Z[ is.na(df$Z)] = 0
+  }
+  df
+}
+
 calculate_ai = function(df, epoch = "1 min") {
   sec_df = df %>% 
     mutate(
@@ -1299,6 +703,7 @@ calculate_mad = function(df, epoch = "1 min") {
       MEDAD = median(abs(r - mean(r)))
     )
 }
+
 calculate_measures = function(df, epoch = "1 min") {
   ai0 = calculate_ai(df, epoch = epoch)
   mad = calculate_mad(df, epoch = epoch)
@@ -1314,6 +719,14 @@ df = acc$data.out
 df = df %>% 
   rename(HEADER_TIME_STAMP = time) %>% 
   select(HEADER_TIME_STAMP, X, Y, Z)
+check_zeros(df)
+```
+
+```
+[1] TRUE
+```
+
+```r
 system.time({measures = calculate_measures(df)})
 ```
 
@@ -1329,7 +742,7 @@ Joining, by = "HEADER_TIME_STAMP"
 
 ```
    user  system elapsed 
- 45.243   4.546  62.276 
+ 39.288   3.172  52.711 
 ```
 
 
@@ -1379,8 +792,11 @@ Joining, by = "HEADER_TIME_STAMP"
 
 ```r
 library(corrr)
-measures %>% select(-HEADER_TIME_STAMP) %>% 
-  correlate()
+measures %>% 
+  select(-HEADER_TIME_STAMP) %>% 
+  correlate() %>% 
+  stretch(remove.dups = TRUE, na.rm = TRUE) %>% 
+  arrange(desc(r))
 ```
 
 ```
@@ -1390,14 +806,19 @@ Missing treated using: 'pairwise.complete.obs'
 ```
 
 ```
-# A tibble: 5 x 6
-  rowname       AI     SD    MAD  MEDAD MIMS_UNIT
-  <chr>      <dbl>  <dbl>  <dbl>  <dbl>     <dbl>
-1 AI        NA      0.534  0.460  0.446     0.986
-2 SD         0.534 NA      0.979  0.927     0.620
-3 MAD        0.460  0.979 NA      0.977     0.545
-4 MEDAD      0.446  0.927  0.977 NA         0.519
-5 MIMS_UNIT  0.986  0.620  0.545  0.519    NA    
+# A tibble: 10 x 3
+   x     y             r
+   <chr> <chr>     <dbl>
+ 1 AI    MIMS_UNIT 0.986
+ 2 SD    MAD       0.979
+ 3 MAD   MEDAD     0.977
+ 4 SD    MEDAD     0.927
+ 5 SD    MIMS_UNIT 0.620
+ 6 MAD   MIMS_UNIT 0.545
+ 7 AI    SD        0.534
+ 8 MEDAD MIMS_UNIT 0.519
+ 9 AI    MAD       0.460
+10 AI    MEDAD     0.446
 ```
 
 

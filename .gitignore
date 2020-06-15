@@ -1,7 +1,10 @@
 .Rhistory
 .RData
 .Rproj.user
-data/
-group_with_prosthesis
+data/group_without_prosthesis
+data/group_with_prosthesis
 fs_token.rds
 index_cache/
+create_measures.R
+process.R
+

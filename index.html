@@ -1599,21 +1599,132 @@ Attaching package: &#39;kableExtra&#39;</code></pre>
 <h2 number="1.1"><span class="header-section-number">1.1</span> Data Description</h2>
 <p>The data consists of 40 subjects, 20 with prostheses, 20 without. Each wore tri-axial Actigraph watches for 7 days, one on each hand. The metadata/demographics is located at <a href>Demog Figshare</a></p>
 <pre class="r"><code>data_dir = tempdir()</code></pre>
-<pre class="r"><code>x = rfigshare::fs_details(&quot;11916087&quot;)</code></pre>
-<pre><code>No encoding supplied: defaulting to UTF-8.
-No encoding supplied: defaulting to UTF-8.</code></pre>
-<pre class="r"><code>files = x$files
-files = lapply(files, function(x) {
-  as.data.frame(x[c(&quot;download_url&quot;, &quot;name&quot;, &quot;id&quot;, &quot;size&quot;)],
-                stringsAsFactors = FALSE)
-})
-all_files = dplyr::bind_rows(files)
+<pre class="r"><code>outfile = here::here(&quot;data&quot;, &quot;file_info.rds&quot;)
+if (file.exists(token_file) &amp;&amp; !file.exists(outfile)) {
+  x = rfigshare::fs_details(&quot;11916087&quot;)
+  
+  files = x$files
+  files = lapply(files, function(x) {
+    as.data.frame(x[c(&quot;download_url&quot;, &quot;name&quot;, &quot;id&quot;, &quot;size&quot;)],
+                  stringsAsFactors = FALSE)
+  })
+  all_files = dplyr::bind_rows(files)
+  readr::write_rds(all_files, outfile)
+} else {
+  all_files = readr::read_rds(outfile)
+}
 meta = all_files %&gt;% 
   filter(grepl(&quot;Meta&quot;, name))
 df = all_files %&gt;% 
   filter(grepl(&quot;gt3x&quot;, name))
-df %&gt;% knitr::kable() %&gt;% head()</code></pre>
-<pre><code>[1] &quot;&lt;table&gt;\n &lt;thead&gt;\n  &lt;tr&gt;\n   &lt;th style=\&quot;text-align:left;\&quot;&gt; download_url &lt;/th&gt;\n   &lt;th style=\&quot;text-align:left;\&quot;&gt; name &lt;/th&gt;\n   &lt;th style=\&quot;text-align:right;\&quot;&gt; id &lt;/th&gt;\n   &lt;th style=\&quot;text-align:left;\&quot;&gt; size &lt;/th&gt;\n  &lt;/tr&gt;\n &lt;/thead&gt;\n&lt;tbody&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855555 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI1_NEO1B41100255_2016-10-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855555 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.59 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855558 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI1_NEO1F09120035_2016-10-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855558 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 36.04 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855561 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI2_NEO1B41100262_2016-10-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855561 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 39.84 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855564 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI2_NEO1F16120038_2016-10-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855564 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 41.67 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855567 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI3_CLE2B21130054_2017-06-02.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855567 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 46.45 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855573 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI3_CLE2B21130055_2017-06-02.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855573 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 44.68 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855576 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI4_MOS2D09170393_2017-06-06.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855576 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 36.13 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855582 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI4_MOS2D09170398_2017-06-06.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855582 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 36.47 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855588 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI5_NEO1B41100262_2017-06-13.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855588 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.70 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855591 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI5_NEO1F16120038_2017-06-13.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855591 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 32.65 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855639 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI6_NEO1B41100255_2017-06-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855639 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 44.02 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855642 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI6_NEO1F16120039_2017-06-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855642 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 35.96 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855645 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI7_MOS2D09170393_2017-06-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855645 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 39.66 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855648 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI7_MOS2D09170398_2017-06-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855648 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 38.59 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855651 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI8_CLE2B21130054_2017-08-14.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855651 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.83 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855654 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI8_CLE2B21130055_2017-08-14.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855654 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.84 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855657 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI9_NEO1B41100255_2017-06-27.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855657 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 36.65 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855660 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI9_NEO1F16120039_2017-06-27.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855660 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.61 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855663 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI10_CLE2B21130054_2017-07-05.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855663 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 38.40 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855666 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI10_CLE2B21130055_2017-07-05.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855666 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 36.25 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855669 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI11_MOS2D09170393_2017-09-25.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855669 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 35.82 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855672 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI11_MOS2D09170398_2017-09-25.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855672 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 35.21 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855675 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI12_NEO1F09120034_2017-09-25.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855675 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 38.94 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855678 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI12_NEO1F09120035_2017-09-25.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855678 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 37.06 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855681 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI13_CLE2B21130054_2017-09-23.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855681 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 43.46 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855684 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI13_CLE2B21130055_2017-09-23.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855684 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 44.94 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855687 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI14_NEO1F16120038_2017-09-23.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855687 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 41.77 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855690 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI14_NEO1F16120039_2017-09-23.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855690 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 41.24 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855693 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI15_MOS2D09170393_2017-10-30.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855693 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 27.94 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855696 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI15_MOS2D09170398_2017-10-30.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855696 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 26.89 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855753 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI16_MOS2D20170459_2017-11-08.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855753 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.53 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855762 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI16_MOS2D20170460_2017-11-08.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855762 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 32.87 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855765 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI17_CLE2B21130054_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855765 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 31.97 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855768 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI17_CLE2B21130055_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855768 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 32.62 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855771 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI18_NEO1F09120034_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855771 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 34.47 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855774 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI18_NEO1F09120035_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855774 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 32.12 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855777 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI19_NEO1F16120038_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855777 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 38.46 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855780 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI19_NEO1F16120039_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855780 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 37.39 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855783 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI20_MOS2D20170459_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855783 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 37.41 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855786 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI20_MOS2D20170460_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855786 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 35.79 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855795 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU1_NEO1F09120035_2016-04-18.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855795 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 41.55 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855798 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU1_NEO1F16120038_2016-04-18.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855798 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 19.03 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855801 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU2_NEO1B41100255_2016-04-21.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855801 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 6.34 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855804 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU2_NEO1B41100262_2016-04-21.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855804 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 43.08 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855807 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU3_CLE2B21130054_2017-03-16.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855807 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 11.67 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855810 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU3_CLE2B21130055_2017-03-16.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855810 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 14.90 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855813 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU4_NEO1B41100262_2017-03-23.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855813 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 43.55 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855816 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU4_NEO1F09120034_2017-03-23.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855816 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 34.04 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855819 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU5_NEO1F09120035_2017-03-24.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855819 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 16.13 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855822 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU5_NEO1F16120038_2017-03-24.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855822 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.47 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855825 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU6_CLE2B21130054_2017-03-28.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855825 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 44.21 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855828 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU6_CLE2B21130055_2017-03-28.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855828 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 34.61 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855831 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU7_NEO1B41100262_2017-05-09.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855831 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 1.43 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855834 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU7_NEO1F16120038_2017-05-09.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855834 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.76 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855837 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU8_NEO1B41100262_2017-05-18.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855837 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 20.26 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855840 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU8_NEO1F16120038_2017-05-18.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855840 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2.18 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855843 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU9_NEO1B41100255_2017-06-05.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855843 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 39.53 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855846 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU9_NEO1F16120039_2017-06-05.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855846 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 30.72 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855849 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU10_NEO1F09120034_2017-06-07.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855849 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 31.72 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855852 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU10_NEO1F09120035_2017-06-07.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855852 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 38.88 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855855 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU11_MOS2D09170393_2017-08-11.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855855 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 44.10 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855858 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU11_MOS2D09170398_2017-08-11.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855858 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 18.28 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855861 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU12_NEO1B41100255_2017-07-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855861 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 12.90 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855864 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU12_NEO1F16120039_2017-07-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855864 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 31.59 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855867 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU13_NEO1B41100262_2017-07-18.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855867 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 41.62 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855870 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU13_NEO1F16120038_2017-07-18.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855870 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 7.67 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855873 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU14_NEO1F09120034_2017-08-02.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855873 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 36.01 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855876 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU14_NEO1F09120035_2017-08-02.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855876 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 20.51 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855879 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU15_NEO1F16120038_2017-08-14.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855879 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 24.27 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855882 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU15_NEO1F16120039_2017-08-14.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855882 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 20.54 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855885 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU16_NEO1B41100255_2017-09-27.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855885 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 15.39 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855888 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU16_NEO1B41100262_2017-09-27.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855888 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 37.75 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855891 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU17_CLE2B21130054_2017-10-16.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855891 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 9.06 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855894 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU17_CLE2B21130055_2017-10-16.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855894 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 26.81 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855897 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU18_NEO1F09120035_2017-10-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855897 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 1.09 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855900 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU18_NEO1F16120039_2017-10-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855900 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.71 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855903 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU19_NEO1F09120034_2017-10-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855903 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 39.96 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855906 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU19_NEO1F16120038_2017-10-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855906 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 22.39 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855909 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU20_MOS2D09170393_2017-11-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855909 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 19.72 MB &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855912 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU20_MOS2D09170398_2017-11-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:right;\&quot;&gt; 21855912 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 41.75 MB &lt;/td&gt;\n  &lt;/tr&gt;\n&lt;/tbody&gt;\n&lt;/table&gt;&quot;</code></pre>
+df %&gt;% 
+  head %&gt;% 
+  knitr::kable() %&gt;% 
+  kableExtra::kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+download_url
+</th>
+<th style="text-align:left;">
+name
+</th>
+<th style="text-align:right;">
+id
+</th>
+<th style="text-align:left;">
+size
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://ndownloader.figshare.com/files/21855555" class="uri">https://ndownloader.figshare.com/files/21855555</a>
+</td>
+<td style="text-align:left;">
+AI1_NEO1B41100255_2016-10-17.gt3x.gz
+</td>
+<td style="text-align:right;">
+21855555
+</td>
+<td style="text-align:left;">
+33.59 MB
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<a href="https://ndownloader.figshare.com/files/21855558" class="uri">https://ndownloader.figshare.com/files/21855558</a>
+</td>
+<td style="text-align:left;">
+AI1_NEO1F09120035_2016-10-17.gt3x.gz
+</td>
+<td style="text-align:right;">
+21855558
+</td>
+<td style="text-align:left;">
+36.04 MB
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<a href="https://ndownloader.figshare.com/files/21855561" class="uri">https://ndownloader.figshare.com/files/21855561</a>
+</td>
+<td style="text-align:left;">
+AI2_NEO1B41100262_2016-10-17.gt3x.gz
+</td>
+<td style="text-align:right;">
+21855561
+</td>
+<td style="text-align:left;">
+39.84 MB
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<a href="https://ndownloader.figshare.com/files/21855564" class="uri">https://ndownloader.figshare.com/files/21855564</a>
+</td>
+<td style="text-align:left;">
+AI2_NEO1F16120038_2016-10-17.gt3x.gz
+</td>
+<td style="text-align:right;">
+21855564
+</td>
+<td style="text-align:left;">
+41.67 MB
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<a href="https://ndownloader.figshare.com/files/21855567" class="uri">https://ndownloader.figshare.com/files/21855567</a>
+</td>
+<td style="text-align:left;">
+AI3_CLE2B21130054_2017-06-02.gt3x.gz
+</td>
+<td style="text-align:right;">
+21855567
+</td>
+<td style="text-align:left;">
+46.45 MB
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<a href="https://ndownloader.figshare.com/files/21855573" class="uri">https://ndownloader.figshare.com/files/21855573</a>
+</td>
+<td style="text-align:left;">
+AI3_CLE2B21130055_2017-06-02.gt3x.gz
+</td>
+<td style="text-align:right;">
+21855573
+</td>
+<td style="text-align:left;">
+44.68 MB
+</td>
+</tr>
+</tbody>
+</table>
 <p>We need to add the data path so that it’s a full file name:</p>
 <pre class="r"><code>df = df %&gt;% 
   rename(file = name) %&gt;% 
@@ -1626,8 +1737,219 @@ df %&gt;% knitr::kable() %&gt;% head()</code></pre>
                         &quot;group_without_prosthesis&quot;)) %&gt;% 
   mutate(article_id = basename(download_url)) %&gt;% 
   mutate(outfile = file.path(data_dir, group, basename(file)))
-df %&gt;% knitr::kable() %&gt;% head()</code></pre>
-<pre><code>[1] &quot;&lt;table&gt;\n &lt;thead&gt;\n  &lt;tr&gt;\n   &lt;th style=\&quot;text-align:left;\&quot;&gt; download_url &lt;/th&gt;\n   &lt;th style=\&quot;text-align:left;\&quot;&gt; file &lt;/th&gt;\n   &lt;th style=\&quot;text-align:left;\&quot;&gt; id &lt;/th&gt;\n   &lt;th style=\&quot;text-align:left;\&quot;&gt; serial &lt;/th&gt;\n   &lt;th style=\&quot;text-align:left;\&quot;&gt; date &lt;/th&gt;\n   &lt;th style=\&quot;text-align:left;\&quot;&gt; size &lt;/th&gt;\n   &lt;th style=\&quot;text-align:left;\&quot;&gt; group &lt;/th&gt;\n   &lt;th style=\&quot;text-align:left;\&quot;&gt; article_id &lt;/th&gt;\n   &lt;th style=\&quot;text-align:left;\&quot;&gt; outfile &lt;/th&gt;\n  &lt;/tr&gt;\n &lt;/thead&gt;\n&lt;tbody&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855555 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI1_NEO1B41100255_2016-10-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI1 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100255 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2016-10-17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.59 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855555 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI1_NEO1B41100255_2016-10-17.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855558 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI1_NEO1F09120035_2016-10-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI1 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F09120035 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2016-10-17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 36.04 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855558 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI1_NEO1F09120035_2016-10-17.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855561 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI2_NEO1B41100262_2016-10-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI2 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100262 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2016-10-17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 39.84 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855561 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI2_NEO1B41100262_2016-10-17.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855564 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI2_NEO1F16120038_2016-10-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI2 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120038 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2016-10-17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 41.67 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855564 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI2_NEO1F16120038_2016-10-17.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855567 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI3_CLE2B21130054_2017-06-02.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI3 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130054 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-02 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 46.45 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855567 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI3_CLE2B21130054_2017-06-02.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855573 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI3_CLE2B21130055_2017-06-02.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI3 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130055 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-02 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 44.68 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855573 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI3_CLE2B21130055_2017-06-02.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855576 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI4_MOS2D09170393_2017-06-06.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI4 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D09170393 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-06 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 36.13 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855576 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI4_MOS2D09170393_2017-06-06.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855582 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI4_MOS2D09170398_2017-06-06.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI4 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D09170398 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-06 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 36.47 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855582 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI4_MOS2D09170398_2017-06-06.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855588 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI5_NEO1B41100262_2017-06-13.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI5 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100262 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-13 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.70 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855588 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI5_NEO1B41100262_2017-06-13.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855591 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI5_NEO1F16120038_2017-06-13.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI5 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120038 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-13 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 32.65 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855591 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI5_NEO1F16120038_2017-06-13.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855639 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI6_NEO1B41100255_2017-06-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI6 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100255 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 44.02 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855639 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI6_NEO1B41100255_2017-06-17.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855642 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI6_NEO1F16120039_2017-06-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI6 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120039 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 35.96 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855642 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI6_NEO1F16120039_2017-06-17.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855645 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI7_MOS2D09170393_2017-06-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI7 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D09170393 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 39.66 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855645 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI7_MOS2D09170393_2017-06-17.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855648 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI7_MOS2D09170398_2017-06-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI7 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D09170398 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 38.59 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855648 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI7_MOS2D09170398_2017-06-17.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855651 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI8_CLE2B21130054_2017-08-14.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI8 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130054 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-08-14 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.83 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855651 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI8_CLE2B21130054_2017-08-14.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855654 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI8_CLE2B21130055_2017-08-14.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI8 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130055 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-08-14 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.84 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855654 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI8_CLE2B21130055_2017-08-14.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855657 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI9_NEO1B41100255_2017-06-27.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI9 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100255 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-27 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 36.65 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855657 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI9_NEO1B41100255_2017-06-27.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855660 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI9_NEO1F16120039_2017-06-27.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI9 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120039 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-27 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.61 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855660 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI9_NEO1F16120039_2017-06-27.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855663 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI10_CLE2B21130054_2017-07-05.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI10 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130054 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-07-05 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 38.40 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855663 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI10_CLE2B21130054_2017-07-05.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855666 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI10_CLE2B21130055_2017-07-05.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI10 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130055 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-07-05 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 36.25 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855666 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI10_CLE2B21130055_2017-07-05.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855669 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI11_MOS2D09170393_2017-09-25.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI11 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D09170393 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-09-25 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 35.82 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855669 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI11_MOS2D09170393_2017-09-25.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855672 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI11_MOS2D09170398_2017-09-25.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI11 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D09170398 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-09-25 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 35.21 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855672 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI11_MOS2D09170398_2017-09-25.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855675 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI12_NEO1F09120034_2017-09-25.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI12 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F09120034 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-09-25 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 38.94 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855675 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI12_NEO1F09120034_2017-09-25.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855678 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI12_NEO1F09120035_2017-09-25.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI12 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F09120035 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-09-25 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 37.06 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855678 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI12_NEO1F09120035_2017-09-25.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855681 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI13_CLE2B21130054_2017-09-23.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI13 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130054 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-09-23 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 43.46 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855681 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI13_CLE2B21130054_2017-09-23.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855684 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI13_CLE2B21130055_2017-09-23.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI13 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130055 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-09-23 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 44.94 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855684 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI13_CLE2B21130055_2017-09-23.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855687 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI14_NEO1F16120038_2017-09-23.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI14 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120038 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-09-23 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 41.77 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855687 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI14_NEO1F16120038_2017-09-23.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855690 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI14_NEO1F16120039_2017-09-23.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI14 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120039 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-09-23 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 41.24 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855690 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI14_NEO1F16120039_2017-09-23.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855693 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI15_MOS2D09170393_2017-10-30.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI15 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D09170393 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-10-30 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 27.94 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855693 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI15_MOS2D09170393_2017-10-30.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855696 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI15_MOS2D09170398_2017-10-30.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI15 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D09170398 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-10-30 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 26.89 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855696 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI15_MOS2D09170398_2017-10-30.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855753 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI16_MOS2D20170459_2017-11-08.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI16 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D20170459 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-11-08 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.53 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855753 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI16_MOS2D20170459_2017-11-08.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855762 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI16_MOS2D20170460_2017-11-08.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI16 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D20170460 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-11-08 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 32.87 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855762 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI16_MOS2D20170460_2017-11-08.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855765 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI17_CLE2B21130054_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130054 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-11-20 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 31.97 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855765 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI17_CLE2B21130054_2017-11-20.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855768 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI17_CLE2B21130055_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130055 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-11-20 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 32.62 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855768 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI17_CLE2B21130055_2017-11-20.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855771 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI18_NEO1F09120034_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI18 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F09120034 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-11-20 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 34.47 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855771 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI18_NEO1F09120034_2017-11-20.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855774 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI18_NEO1F09120035_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI18 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F09120035 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-11-20 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 32.12 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855774 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI18_NEO1F09120035_2017-11-20.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855777 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI19_NEO1F16120038_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI19 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120038 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-11-20 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 38.46 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855777 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI19_NEO1F16120038_2017-11-20.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855780 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI19_NEO1F16120039_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI19 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120039 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-11-20 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 37.39 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855780 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI19_NEO1F16120039_2017-11-20.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855783 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI20_MOS2D20170459_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI20 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D20170459 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-11-20 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 37.41 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855783 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI20_MOS2D20170459_2017-11-20.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855786 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI20_MOS2D20170460_2017-11-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; AI20 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D20170460 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-11-20 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 35.79 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_without_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855786 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI20_MOS2D20170460_2017-11-20.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855795 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU1_NEO1F09120035_2016-04-18.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU1 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F09120035 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2016-04-18 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 41.55 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855795 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU1_NEO1F09120035_2016-04-18.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855798 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU1_NEO1F16120038_2016-04-18.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU1 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120038 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2016-04-18 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 19.03 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855798 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU1_NEO1F16120038_2016-04-18.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855801 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU2_NEO1B41100255_2016-04-21.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU2 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100255 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2016-04-21 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 6.34 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855801 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU2_NEO1B41100255_2016-04-21.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855804 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU2_NEO1B41100262_2016-04-21.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU2 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100262 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2016-04-21 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 43.08 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855804 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU2_NEO1B41100262_2016-04-21.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855807 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU3_CLE2B21130054_2017-03-16.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU3 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130054 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-03-16 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 11.67 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855807 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU3_CLE2B21130054_2017-03-16.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855810 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU3_CLE2B21130055_2017-03-16.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU3 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130055 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-03-16 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 14.90 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855810 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU3_CLE2B21130055_2017-03-16.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855813 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU4_NEO1B41100262_2017-03-23.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU4 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100262 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-03-23 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 43.55 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855813 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU4_NEO1B41100262_2017-03-23.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855816 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU4_NEO1F09120034_2017-03-23.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU4 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F09120034 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-03-23 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 34.04 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855816 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU4_NEO1F09120034_2017-03-23.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855819 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU5_NEO1F09120035_2017-03-24.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU5 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F09120035 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-03-24 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 16.13 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855819 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU5_NEO1F09120035_2017-03-24.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855822 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU5_NEO1F16120038_2017-03-24.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU5 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120038 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-03-24 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.47 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855822 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU5_NEO1F16120038_2017-03-24.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855825 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU6_CLE2B21130054_2017-03-28.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU6 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130054 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-03-28 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 44.21 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855825 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU6_CLE2B21130054_2017-03-28.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855828 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU6_CLE2B21130055_2017-03-28.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU6 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130055 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-03-28 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 34.61 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855828 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU6_CLE2B21130055_2017-03-28.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855831 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU7_NEO1B41100262_2017-05-09.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU7 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100262 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-05-09 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 1.43 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855831 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU7_NEO1B41100262_2017-05-09.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855834 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU7_NEO1F16120038_2017-05-09.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU7 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120038 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-05-09 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.76 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855834 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU7_NEO1F16120038_2017-05-09.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855837 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU8_NEO1B41100262_2017-05-18.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU8 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100262 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-05-18 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 20.26 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855837 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU8_NEO1B41100262_2017-05-18.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855840 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU8_NEO1F16120038_2017-05-18.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU8 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120038 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-05-18 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2.18 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855840 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU8_NEO1F16120038_2017-05-18.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855843 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU9_NEO1B41100255_2017-06-05.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU9 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100255 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-05 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 39.53 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855843 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU9_NEO1B41100255_2017-06-05.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855846 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU9_NEO1F16120039_2017-06-05.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU9 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120039 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-05 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 30.72 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855846 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU9_NEO1F16120039_2017-06-05.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855849 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU10_NEO1F09120034_2017-06-07.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU10 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F09120034 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-07 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 31.72 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855849 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU10_NEO1F09120034_2017-06-07.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855852 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU10_NEO1F09120035_2017-06-07.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU10 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F09120035 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-06-07 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 38.88 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855852 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU10_NEO1F09120035_2017-06-07.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855855 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU11_MOS2D09170393_2017-08-11.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU11 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D09170393 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-08-11 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 44.10 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855855 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU11_MOS2D09170393_2017-08-11.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855858 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU11_MOS2D09170398_2017-08-11.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU11 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D09170398 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-08-11 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 18.28 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855858 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU11_MOS2D09170398_2017-08-11.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855861 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU12_NEO1B41100255_2017-07-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU12 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100255 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-07-17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 12.90 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855861 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU12_NEO1B41100255_2017-07-17.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855864 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU12_NEO1F16120039_2017-07-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU12 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120039 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-07-17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 31.59 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855864 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU12_NEO1F16120039_2017-07-17.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855867 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU13_NEO1B41100262_2017-07-18.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU13 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100262 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-07-18 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 41.62 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855867 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU13_NEO1B41100262_2017-07-18.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855870 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU13_NEO1F16120038_2017-07-18.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU13 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120038 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-07-18 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 7.67 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855870 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU13_NEO1F16120038_2017-07-18.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855873 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU14_NEO1F09120034_2017-08-02.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU14 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F09120034 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-08-02 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 36.01 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855873 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU14_NEO1F09120034_2017-08-02.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855876 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU14_NEO1F09120035_2017-08-02.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU14 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F09120035 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-08-02 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 20.51 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855876 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU14_NEO1F09120035_2017-08-02.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855879 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU15_NEO1F16120038_2017-08-14.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU15 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120038 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-08-14 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 24.27 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855879 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU15_NEO1F16120038_2017-08-14.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855882 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU15_NEO1F16120039_2017-08-14.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU15 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120039 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-08-14 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 20.54 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855882 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU15_NEO1F16120039_2017-08-14.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855885 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU16_NEO1B41100255_2017-09-27.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU16 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100255 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-09-27 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 15.39 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855885 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU16_NEO1B41100255_2017-09-27.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855888 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU16_NEO1B41100262_2017-09-27.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU16 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1B41100262 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-09-27 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 37.75 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855888 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU16_NEO1B41100262_2017-09-27.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855891 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU17_CLE2B21130054_2017-10-16.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130054 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-10-16 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 9.06 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855891 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU17_CLE2B21130054_2017-10-16.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855894 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU17_CLE2B21130055_2017-10-16.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; CLE2B21130055 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-10-16 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 26.81 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855894 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU17_CLE2B21130055_2017-10-16.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855897 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU18_NEO1F09120035_2017-10-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU18 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F09120035 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-10-17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 1.09 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855897 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU18_NEO1F09120035_2017-10-17.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855900 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU18_NEO1F16120039_2017-10-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU18 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120039 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-10-17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 33.71 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855900 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU18_NEO1F16120039_2017-10-17.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855903 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU19_NEO1F09120034_2017-10-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU19 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F09120034 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-10-20 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 39.96 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855903 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU19_NEO1F09120034_2017-10-20.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855906 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU19_NEO1F16120038_2017-10-20.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU19 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; NEO1F16120038 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-10-20 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 22.39 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855906 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU19_NEO1F16120038_2017-10-20.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855909 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU20_MOS2D09170393_2017-11-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU20 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D09170393 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-11-17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 19.72 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855909 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU20_MOS2D09170393_2017-11-17.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; https://ndownloader.figshare.com/files/21855912 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU20_MOS2D09170398_2017-11-17.gt3x.gz &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; PU20 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; MOS2D09170398 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 2017-11-17 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 41.75 MB &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; group_with_prosthesis &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; 21855912 &lt;/td&gt;\n   &lt;td style=\&quot;text-align:left;\&quot;&gt; /Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_with_prosthesis/PU20_MOS2D09170398_2017-11-17.gt3x.gz &lt;/td&gt;\n  &lt;/tr&gt;\n&lt;/tbody&gt;\n&lt;/table&gt;&quot;</code></pre>
+df %&gt;% 
+  head() %&gt;% 
+  knitr::kable() %&gt;% 
+  kableExtra::kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+download_url
+</th>
+<th style="text-align:left;">
+file
+</th>
+<th style="text-align:left;">
+id
+</th>
+<th style="text-align:left;">
+serial
+</th>
+<th style="text-align:left;">
+date
+</th>
+<th style="text-align:left;">
+size
+</th>
+<th style="text-align:left;">
+group
+</th>
+<th style="text-align:left;">
+article_id
+</th>
+<th style="text-align:left;">
+outfile
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://ndownloader.figshare.com/files/21855555" class="uri">https://ndownloader.figshare.com/files/21855555</a>
+</td>
+<td style="text-align:left;">
+AI1_NEO1B41100255_2016-10-17.gt3x.gz
+</td>
+<td style="text-align:left;">
+AI1
+</td>
+<td style="text-align:left;">
+NEO1B41100255
+</td>
+<td style="text-align:left;">
+2016-10-17
+</td>
+<td style="text-align:left;">
+33.59 MB
+</td>
+<td style="text-align:left;">
+group_without_prosthesis
+</td>
+<td style="text-align:left;">
+21855555
+</td>
+<td style="text-align:left;">
+/Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI1_NEO1B41100255_2016-10-17.gt3x.gz
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<a href="https://ndownloader.figshare.com/files/21855558" class="uri">https://ndownloader.figshare.com/files/21855558</a>
+</td>
+<td style="text-align:left;">
+AI1_NEO1F09120035_2016-10-17.gt3x.gz
+</td>
+<td style="text-align:left;">
+AI1
+</td>
+<td style="text-align:left;">
+NEO1F09120035
+</td>
+<td style="text-align:left;">
+2016-10-17
+</td>
+<td style="text-align:left;">
+36.04 MB
+</td>
+<td style="text-align:left;">
+group_without_prosthesis
+</td>
+<td style="text-align:left;">
+21855558
+</td>
+<td style="text-align:left;">
+/Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI1_NEO1F09120035_2016-10-17.gt3x.gz
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<a href="https://ndownloader.figshare.com/files/21855561" class="uri">https://ndownloader.figshare.com/files/21855561</a>
+</td>
+<td style="text-align:left;">
+AI2_NEO1B41100262_2016-10-17.gt3x.gz
+</td>
+<td style="text-align:left;">
+AI2
+</td>
+<td style="text-align:left;">
+NEO1B41100262
+</td>
+<td style="text-align:left;">
+2016-10-17
+</td>
+<td style="text-align:left;">
+39.84 MB
+</td>
+<td style="text-align:left;">
+group_without_prosthesis
+</td>
+<td style="text-align:left;">
+21855561
+</td>
+<td style="text-align:left;">
+/Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI2_NEO1B41100262_2016-10-17.gt3x.gz
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<a href="https://ndownloader.figshare.com/files/21855564" class="uri">https://ndownloader.figshare.com/files/21855564</a>
+</td>
+<td style="text-align:left;">
+AI2_NEO1F16120038_2016-10-17.gt3x.gz
+</td>
+<td style="text-align:left;">
+AI2
+</td>
+<td style="text-align:left;">
+NEO1F16120038
+</td>
+<td style="text-align:left;">
+2016-10-17
+</td>
+<td style="text-align:left;">
+41.67 MB
+</td>
+<td style="text-align:left;">
+group_without_prosthesis
+</td>
+<td style="text-align:left;">
+21855564
+</td>
+<td style="text-align:left;">
+/Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI2_NEO1F16120038_2016-10-17.gt3x.gz
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<a href="https://ndownloader.figshare.com/files/21855567" class="uri">https://ndownloader.figshare.com/files/21855567</a>
+</td>
+<td style="text-align:left;">
+AI3_CLE2B21130054_2017-06-02.gt3x.gz
+</td>
+<td style="text-align:left;">
+AI3
+</td>
+<td style="text-align:left;">
+CLE2B21130054
+</td>
+<td style="text-align:left;">
+2017-06-02
+</td>
+<td style="text-align:left;">
+46.45 MB
+</td>
+<td style="text-align:left;">
+group_without_prosthesis
+</td>
+<td style="text-align:left;">
+21855567
+</td>
+<td style="text-align:left;">
+/Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI3_CLE2B21130054_2017-06-02.gt3x.gz
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<a href="https://ndownloader.figshare.com/files/21855573" class="uri">https://ndownloader.figshare.com/files/21855573</a>
+</td>
+<td style="text-align:left;">
+AI3_CLE2B21130055_2017-06-02.gt3x.gz
+</td>
+<td style="text-align:left;">
+AI3
+</td>
+<td style="text-align:left;">
+CLE2B21130055
+</td>
+<td style="text-align:left;">
+2017-06-02
+</td>
+<td style="text-align:left;">
+44.68 MB
+</td>
+<td style="text-align:left;">
+group_without_prosthesis
+</td>
+<td style="text-align:left;">
+21855573
+</td>
+<td style="text-align:left;">
+/Users/johnmuschelli/Dropbox/Projects/upper_limb_gt3x_prosthesis/data/group_without_prosthesis/AI3_CLE2B21130055_2017-06-02.gt3x.gz
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="demographics-data" class="section level2" number="1.2">
 <h2 number="1.2"><span class="header-section-number">1.2</span> Demographics data</h2>
@@ -1675,6 +1997,7 @@ meta = meta %&gt;%
     `Time_since_limb_loss_(years)`)
   )
 meta %&gt;% 
+  head %&gt;% 
   knitr::kable() %&gt;% 
   kableExtra::kable_styling()</code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
@@ -2115,2114 +2438,6 @@ yes
 Incomplete
 </td>
 </tr>
-<tr>
-<td style="text-align:left;">
-PU7
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-50
-</td>
-<td style="text-align:left;">
-R*
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1B41100262
-</td>
-<td style="text-align:left;">
-NEO1F16120038
-</td>
-<td style="text-align:left;">
-24
-</td>
-<td style="text-align:right;">
-23.0
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-PU8
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-21
-</td>
-<td style="text-align:left;">
-L
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1B41100262
-</td>
-<td style="text-align:left;">
-NEO1F16120038
-</td>
-<td style="text-align:left;">
-0
-</td>
-<td style="text-align:right;">
-19.0
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-PU9
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-49
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1F16120039
-</td>
-<td style="text-align:left;">
-NEO1B41100255
-</td>
-<td style="text-align:left;">
-0
-</td>
-<td style="text-align:right;">
-33.0
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-PU10
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-57
-</td>
-<td style="text-align:left;">
-R*
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1F09120034
-</td>
-<td style="text-align:left;">
-NEO1F09120035
-</td>
-<td style="text-align:left;">
-25
-</td>
-<td style="text-align:right;">
-21.0
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-PU11
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-68
-</td>
-<td style="text-align:left;">
-L*
-</td>
-<td style="text-align:left;">
-wGT3X-BT
-</td>
-<td style="text-align:left;">
-MOS2D09170393
-</td>
-<td style="text-align:left;">
-MOS2D09170398
-</td>
-<td style="text-align:left;">
-47
-</td>
-<td style="text-align:right;">
-39.0
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-Incomplete
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-PU12
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-50
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1B41100255
-</td>
-<td style="text-align:left;">
-NEO1F16120039
-</td>
-<td style="text-align:left;">
-0
-</td>
-<td style="text-align:right;">
-1.5
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-PU13
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-69
-</td>
-<td style="text-align:left;">
-L
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1B41100262
-</td>
-<td style="text-align:left;">
-NEO1F16120038
-</td>
-<td style="text-align:left;">
-8
-</td>
-<td style="text-align:right;">
-3.0
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-PU14
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-62
-</td>
-<td style="text-align:left;">
-L
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1F09120034
-</td>
-<td style="text-align:left;">
-NEO1F09120035
-</td>
-<td style="text-align:left;">
-12
-</td>
-<td style="text-align:right;">
-10.0
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-Incomplete
-</td>
-<td style="text-align:left;">
-Incomplete
-</td>
-<td style="text-align:left;">
-Incomplete
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-PU15
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-46
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1F16120039
-</td>
-<td style="text-align:left;">
-NEO1F16120038
-</td>
-<td style="text-align:left;">
-0
-</td>
-<td style="text-align:right;">
-33.0
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-PU16
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-47
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1B41100255
-</td>
-<td style="text-align:left;">
-NEO1B41100262
-</td>
-<td style="text-align:left;">
-0
-</td>
-<td style="text-align:right;">
-34.0
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-Missing
-</td>
-<td style="text-align:left;">
-Missing
-</td>
-<td style="text-align:left;">
-Missing
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-PU17
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-67
-</td>
-<td style="text-align:left;">
-R*
-</td>
-<td style="text-align:left;">
-wGT3X+
-</td>
-<td style="text-align:left;">
-CLE2B21130054
-</td>
-<td style="text-align:left;">
-CLE2B21130055
-</td>
-<td style="text-align:left;">
-34
-</td>
-<td style="text-align:right;">
-33.0
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-PU18
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-59
-</td>
-<td style="text-align:left;">
-R*
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1F09120035
-</td>
-<td style="text-align:left;">
-NEO1F16120039
-</td>
-<td style="text-align:left;">
-15
-</td>
-<td style="text-align:right;">
-14.5
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-PU19
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-75
-</td>
-<td style="text-align:left;">
-L
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1F09120034
-</td>
-<td style="text-align:left;">
-NEO1F16120038
-</td>
-<td style="text-align:left;">
-0
-</td>
-<td style="text-align:right;">
-4.5
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-PU20
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-72
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-wGT3X-BT
-</td>
-<td style="text-align:left;">
-MOS2D09170393
-</td>
-<td style="text-align:left;">
-MOS2D09170398
-</td>
-<td style="text-align:left;">
-0
-</td>
-<td style="text-align:right;">
-5.0
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI1
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-27
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1F09120035
-</td>
-<td style="text-align:left;">
-NEO1B41100255
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI2
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-28
-</td>
-<td style="text-align:left;">
-L
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1B41100262
-</td>
-<td style="text-align:left;">
-NEO1F16120038
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI3
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-27
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-wGT3X+
-</td>
-<td style="text-align:left;">
-CLE2B21130054
-</td>
-<td style="text-align:left;">
-CLE2B21130055
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI4
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-33
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-wGT3X-BT
-</td>
-<td style="text-align:left;">
-MOS2D09170393
-</td>
-<td style="text-align:left;">
-MOS2D09170398
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI5
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-24
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1B41100262
-</td>
-<td style="text-align:left;">
-NEO1F16120038
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI6
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-61
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1B41100255
-</td>
-<td style="text-align:left;">
-NEO1F16120039
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI7
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-61
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-wGT3X-BT
-</td>
-<td style="text-align:left;">
-MOS2D09170393
-</td>
-<td style="text-align:left;">
-MOS2D09170398
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI8
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-61
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-wGT3X+
-</td>
-<td style="text-align:left;">
-CLE2B21130054
-</td>
-<td style="text-align:left;">
-CLE2B21130055
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI9
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-23
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1B41100255
-</td>
-<td style="text-align:left;">
-NEO1F16120039
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI10
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-24
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-wGT3X+
-</td>
-<td style="text-align:left;">
-CLE2B21130054
-</td>
-<td style="text-align:left;">
-CLE2B21130055
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI11
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-58
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-wGT3X-BT
-</td>
-<td style="text-align:left;">
-MOS2D09170393
-</td>
-<td style="text-align:left;">
-MOS2D09170398
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI12
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-60
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1F09120034
-</td>
-<td style="text-align:left;">
-NEO1F09120035
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI13
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-55
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-wGT3X+
-</td>
-<td style="text-align:left;">
-CLE2B21130054
-</td>
-<td style="text-align:left;">
-CLE2B21130055
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI14
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-57
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1F16120038
-</td>
-<td style="text-align:left;">
-NEO1F16120039
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI15
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-40
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-wGT3X-BT
-</td>
-<td style="text-align:left;">
-MOS2D09170393
-</td>
-<td style="text-align:left;">
-MOS2D09170398
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-Missing
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI16
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-50
-</td>
-<td style="text-align:left;">
-L
-</td>
-<td style="text-align:left;">
-wGT3X-BT
-</td>
-<td style="text-align:left;">
-MOS2D20170460
-</td>
-<td style="text-align:left;">
-MOS2D20170459
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI17
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-47
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-wGT3X+
-</td>
-<td style="text-align:left;">
-CLE2B21130054
-</td>
-<td style="text-align:left;">
-CLE2B21130055
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI18
-</td>
-<td style="text-align:left;">
-F
-</td>
-<td style="text-align:right;">
-36
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1F09120034
-</td>
-<td style="text-align:left;">
-NEO1F09120035
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-Incomplete
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI19
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-41
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-GT3X+
-</td>
-<td style="text-align:left;">
-NEO1F16120038
-</td>
-<td style="text-align:left;">
-NEO1F16120039
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AI20
-</td>
-<td style="text-align:left;">
-M
-</td>
-<td style="text-align:right;">
-39
-</td>
-<td style="text-align:left;">
-L
-</td>
-<td style="text-align:left;">
-wGT3X-BT
-</td>
-<td style="text-align:left;">
-MOS2D20170460
-</td>
-<td style="text-align:left;">
-MOS2D20170459
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-yes
-</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -4316,7 +2531,28 @@ res = acc$data.out %&gt;%
   Gender   Age
   &lt;chr&gt;  &lt;dbl&gt;
 1 F         24</code></pre>
-<pre class="r"><code>calculate_ai = function(df, epoch = &quot;1 min&quot;) {
+<pre class="r"><code>check_zeros = function(df) {
+  any(rowSums(df[, c(&quot;X&quot;, &quot;Y&quot;, &quot;Z&quot;)] == 0) == 3)
+}
+fix_zeros = function(df, fill_in = TRUE) {
+  zero = rowSums(df[, c(&quot;X&quot;, &quot;Y&quot;, &quot;Z&quot;)] == 0) == 3
+  names(zero) = NULL
+  df$X[zero] = NA
+  df$Y[zero] = NA
+  df$Z[zero] = NA
+  if (fill_in) {
+    df$X = zoo::na.locf(df$X, na.rm = FALSE)
+    df$Y = zoo::na.locf(df$Y, na.rm = FALSE)
+    df$Z = zoo::na.locf(df$Z, na.rm = FALSE)
+    
+    df$X[ is.na(df$X)] = 0
+    df$Y[ is.na(df$Y)] = 0
+    df$Z[ is.na(df$Z)] = 0
+  }
+  df
+}
+
+calculate_ai = function(df, epoch = &quot;1 min&quot;) {
   sec_df = df %&gt;% 
     mutate(
       HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, &quot;1 sec&quot;)) %&gt;% 
@@ -4344,6 +2580,7 @@ calculate_mad = function(df, epoch = &quot;1 min&quot;) {
       MEDAD = median(abs(r - mean(r)))
     )
 }
+
 calculate_measures = function(df, epoch = &quot;1 min&quot;) {
   ai0 = calculate_ai(df, epoch = epoch)
   mad = calculate_mad(df, epoch = epoch)
@@ -4355,13 +2592,15 @@ calculate_measures = function(df, epoch = &quot;1 min&quot;) {
 df = df %&gt;% 
   rename(HEADER_TIME_STAMP = time) %&gt;% 
   select(HEADER_TIME_STAMP, X, Y, Z)
-system.time({measures = calculate_measures(df)})</code></pre>
+check_zeros(df)</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<pre class="r"><code>system.time({measures = calculate_measures(df)})</code></pre>
 <pre><code>`summarise()` ungrouping output (override with `.groups` argument)
 `summarise()` ungrouping output (override with `.groups` argument)
 `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
 <pre><code>Joining, by = &quot;HEADER_TIME_STAMP&quot;</code></pre>
 <pre><code>   user  system elapsed 
- 45.243   4.546  62.276 </code></pre>
+ 39.288   3.172  52.711 </code></pre>
 <pre class="r"><code>library(MIMSunit)
 hdr = acc$header %&gt;% 
   filter(Field %in% c(&quot;Acceleration Min&quot;, &quot;Acceleration Max&quot;)) %&gt;% 
@@ -4383,19 +2622,27 @@ Call `lifecycle::last_warnings()` to see where this warning was generated.</code
 <pre class="r"><code>measures = full_join(measures, mims)</code></pre>
 <pre><code>Joining, by = &quot;HEADER_TIME_STAMP&quot;</code></pre>
 <pre class="r"><code>library(corrr)
-measures %&gt;% select(-HEADER_TIME_STAMP) %&gt;% 
-  correlate()</code></pre>
+measures %&gt;% 
+  select(-HEADER_TIME_STAMP) %&gt;% 
+  correlate() %&gt;% 
+  stretch(remove.dups = TRUE, na.rm = TRUE) %&gt;% 
+  arrange(desc(r))</code></pre>
 <pre><code>
 Correlation method: &#39;pearson&#39;
 Missing treated using: &#39;pairwise.complete.obs&#39;</code></pre>
-<pre><code># A tibble: 5 x 6
-  rowname       AI     SD    MAD  MEDAD MIMS_UNIT
-  &lt;chr&gt;      &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;
-1 AI        NA      0.534  0.460  0.446     0.986
-2 SD         0.534 NA      0.979  0.927     0.620
-3 MAD        0.460  0.979 NA      0.977     0.545
-4 MEDAD      0.446  0.927  0.977 NA         0.519
-5 MIMS_UNIT  0.986  0.620  0.545  0.519    NA    </code></pre>
+<pre><code># A tibble: 10 x 3
+   x     y             r
+   &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt;
+ 1 AI    MIMS_UNIT 0.986
+ 2 SD    MAD       0.979
+ 3 MAD   MEDAD     0.977
+ 4 SD    MEDAD     0.927
+ 5 SD    MIMS_UNIT 0.620
+ 6 MAD   MIMS_UNIT 0.545
+ 7 AI    SD        0.534
+ 8 MEDAD MIMS_UNIT 0.519
+ 9 AI    MAD       0.460
+10 AI    MEDAD     0.446</code></pre>
 </div>
 </div>
 <div id="references" class="section level1 unnumbered" number>
