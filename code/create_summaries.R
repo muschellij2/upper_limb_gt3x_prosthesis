@@ -7,8 +7,6 @@ library(readxl)
 library(tidyr)
 library(readr)
 library(lubridate)
-library(kableExtra)
-library(corrr)
 library(MIMSunit)
 
 data_dir = here::here("data")
@@ -23,6 +21,8 @@ idf = data[iid, ]
 summary_file = idf$summary_file  
 
 if (!file.exists(idf$outfile)) {
+  dir.create(dirname(idf$outfile), showWarnings = FALSE,
+             recursive = TRUE)
   out = curl::curl_download(idf$download_url, destfile = idf$outfile)
 }
 acc = read_actigraphy(idf$outfile, verbose = TRUE)
@@ -49,6 +49,8 @@ dynamic_range = range(hdr$Value)
 if (all(is.na(dynamic_range))) {
   dynamic_range = c(-6, 6)
 }
+
+rm(acc)
 
 measures = calculate_measures(df,
   dynamic_range = dynamic_range
