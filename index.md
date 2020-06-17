@@ -1,7 +1,7 @@
 ---
 title: "Analysis of Raw GT3X files to Summary Measures in Chadwell et. al Data"
 author: "John Muschelli"
-date: '2020-06-15'
+date: '2020-06-17'
 output: 
   html_document:
     keep_md: true
@@ -13,7 +13,7 @@ output:
     number_sections: true
 bibliography: refs.bib  
 editor_options: 
-  chunk_output_type: console    
+  chunk_output_type: console
 ---
 
 All code for this document is located at [here](https://raw.githubusercontent.com/muschellij2/osler/master/gt3x_limb_data/index.R).
