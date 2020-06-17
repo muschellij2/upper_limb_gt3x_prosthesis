@@ -19,7 +19,9 @@ iid = 1
 idf = data[iid, ]
 
 summary_file = idf$summary_file  
-
+dir.create(dirname(summary_file), showWarnings = FALSE,
+           recursive = TRUE)
+if (!file.exists(summary_file)) {
 if (!file.exists(idf$outfile)) {
   dir.create(dirname(idf$outfile), showWarnings = FALSE,
              recursive = TRUE)
@@ -55,3 +57,7 @@ rm(acc)
 measures = calculate_measures(df,
   dynamic_range = dynamic_range
 )
+readr::wrie_rds(measures, summary_file)
+
+
+}
