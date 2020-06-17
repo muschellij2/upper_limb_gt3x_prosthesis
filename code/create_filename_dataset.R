@@ -14,7 +14,9 @@ if (file.exists(token_file)) {
 data_dir = here::here("data")
 
 outfile = here::here("data", "file_info.rds")
-if (file.exists(token_file) && !file.exists(outfile)) {
+if (
+  (file.exists(token_file) && !file.exists(outfile)) ||
+  !file.exists(token_file)) {
   x = rfigshare::fs_details("11916087")
   
   files = x$files

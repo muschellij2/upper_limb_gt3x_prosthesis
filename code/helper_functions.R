@@ -55,7 +55,7 @@ calculate_mims = function(
   dynamic_range = c(-6, 6)) {
   MIMSunit::mims_unit(
     df,
-    epoch = "1 min", 
+    epoch = epoch, 
     dynamic_range = dynamic_range)
 }
 
