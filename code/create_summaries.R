@@ -46,8 +46,21 @@ if (!file.exists(summary_file)) {
   df = df %>% 
     rename(HEADER_TIME_STAMP = time) %>% 
     select(HEADER_TIME_STAMP, X, Y, Z)
+  
+  # dates = acc$header %>% 
+  #   filter(Field %in% c("Start Date", "Stop Date"))
+  # if (nrow(dates) > 0) {
+  #   dates = dates%>% 
+  #     mutate(Value = as_datetime(Value)) %>% 
+  #     pull(Value)
+  #   dates = range(dates)
+  #   rdates = range(df$HEADER_TIME_STAMP)
+  #   stopifnot(difftime(rdates, dates, units = "mins") < 60)
+  # }
+  
   df = fix_zeros(df)
   
+    
   hdr = acc$header %>% 
     filter(Field %in% c("Acceleration Min", "Acceleration Max")) %>% 
     mutate(Value = as.numeric(Value))
