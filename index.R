@@ -1,9 +1,11 @@
-## ----setup, include=FALSE-----------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE, comment = "")
 
 
-## ----packages-----------------------------------------------------------------
+## ----packages-----------------------------------------------------------
+# remotes::install_github("muschellij2/SummarizedActigraphy")
 library(SummarizedActigraphy)
+# remotes::install_github("THLfi/read.gt3x")
 library(read.gt3x)
 library(dplyr)
 library(readxl)
@@ -14,7 +16,7 @@ library(kableExtra)
 library(corrr)
 
 
-## ----auth, include=FALSE------------------------------------------------------
+## ----auth, include=FALSE------------------------------------------------
 token_file = here::here("fs_token.rds")
 if (file.exists(token_file)) {
   token = readr::read_rds(token_file)
@@ -22,15 +24,15 @@ if (file.exists(token_file)) {
 }
 
 
-## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------
 ## data_dir = tempdir()
 
 
-## ---- eval = TRUE, echo = FALSE-----------------------------------------------
+## ---- eval = TRUE, echo = FALSE-----------------------------------------
 data_dir = here::here("data")
 
 
-## ----get_fs_data--------------------------------------------------------------
+## ----get_fs_data--------------------------------------------------------
 outfile = here::here("data", "file_info.rds")
 if (file.exists(token_file) && !file.exists(outfile)) {
   x = rfigshare::fs_details("11916087")
@@ -55,7 +57,7 @@ df %>%
   kableExtra::kable_styling()
 
 
-## ----filedf-------------------------------------------------------------------
+## ----filedf-------------------------------------------------------------
 df = df %>% 
   rename(file = name) %>% 
   tidyr::separate(file, into = c("id", "serial", "date"), sep = "_",
@@ -73,7 +75,7 @@ df %>%
   kableExtra::kable_styling()
 
 
-## ----meta---------------------------------------------------------------------
+## ----meta---------------------------------------------------------------
 metadata = file.path(data_dir, "Metadata.xlsx")
 if (!file.exists(metadata)) {
   out = download.file(meta$download_url, destfile = metadata)
@@ -116,18 +118,18 @@ meta %>%
   kableExtra::kable_styling()
 
 
-## ----merge--------------------------------------------------------------------
+## ----merge--------------------------------------------------------------
 data = full_join(meta, df)
 
 
-## ----readin-------------------------------------------------------------------
+## ----readin-------------------------------------------------------------
 iid = sample(nrow(df), 1)
 idf = df[iid, ]
 if (!file.exists(idf$outfile)) {
   out = curl::curl_download(idf$download_url, destfile = idf$outfile)
 }
-acc = read.gt3x(idf$outfile, verbose = FALSE, 
-                asDataFrame = TRUE, imputeZeroes = TRUE)
+# acc = read.gt3x(idf$outfile, verbose = FALSE, 
+#                 asDataFrame = TRUE, imputeZeroes = TRUE)
 acc = read_actigraphy(idf$outfile, verbose = FALSE)
 head(acc$data.out)
 options(digits.secs = 2)
@@ -135,7 +137,7 @@ head(acc$data.out)
 acc$freq
 
 
-## ----sample_size--------------------------------------------------------------
+## ----sample_size, dependson="readin"------------------------------------
 res = acc$data.out %>% 
   mutate(dt = floor_date(time, "seconds")) %>% 
   group_by(dt) %>% 
@@ -143,27 +145,36 @@ res = acc$data.out %>%
 table(res$n)
 
 
-## ----p_diff-------------------------------------------------------------------
+## ----p_diff, dependson="readin"-----------------------------------------
 library(ggplot2)
 res = acc$data.out %>% 
   mutate(day = floor_date(time, "day"),
          time = hms::as_hms(time)) %>% 
-  mutate(day = difftime(day, day[1], units = "days")) %>% 
+  mutate(day = difftime(day, day[1], units = "days")) 
+res = res %>%
+  filter(day == 1)
+res = res %>% 
+  filter(between(time, 
+                 hms::as_hms("10:00:00"),
+                 hms::as_hms("10:30:00"))
+         ) 
+res = res %>% 
   tidyr::gather(key = direction, value = accel, -time, -day)
-# res %>% 
-#   filter(day == 1) %>% 
-#   ggplot(aes(x = time, y = accel, colour = direction)) + 
-#   geom_line()
+
+res %>%
+  ggplot(aes(x = time, y = accel, colour = direction)) +
+  geom_line() +
+  theme(
+  legend.background = element_rect(
+    fill = "transparent"),
+  legend.position = c(0.5, 0.9),
+  legend.direction = "horizontal",
+  legend.key = element_rect(fill = "transparent", 
+                            color = "transparent") ) 
+  
 
 
-## ----header-------------------------------------------------------------------
-acc$header
-acc$header %>% 
-  filter(Field %in% c("Sex", "Age", "Side"))
-data[iid, c("Gender", "Age")]
-
-
-## ----create_functions---------------------------------------------------------
+## -----------------------------------------------------------------------
 check_zeros = function(df) {
   any(rowSums(df[, c("X", "Y", "Z")] == 0) == 3)
 }
@@ -185,6 +196,15 @@ fix_zeros = function(df, fill_in = TRUE) {
   df
 }
 
+
+## ----header-------------------------------------------------------------
+acc$header
+acc$header %>% 
+  filter(Field %in% c("Sex", "Age", "Side"))
+data[iid, c("Gender", "Age")]
+
+
+## ----create_functions---------------------------------------------------
 calculate_ai = function(df, epoch = "1 min") {
   sec_df = df %>% 
     mutate(
@@ -223,16 +243,26 @@ calculate_measures = function(df, epoch = "1 min") {
 
 
 
-## ----make_measures------------------------------------------------------------
+## ----zeroes-------------------------------------------------------------
 df = acc$data.out
 df = df %>% 
   rename(HEADER_TIME_STAMP = time) %>% 
   select(HEADER_TIME_STAMP, X, Y, Z)
-check_zeros(df)
+zero_rows = rowSums(df[, c("X", "Y", "Z")] == 0) == 3
+any(zero_rows)
+ind = unname(which(zero_rows))
+ind = head(ind)
+ind = c(min(ind) - (1:5), ind)
+as.data.frame(df[ind,])
+df = fix_zeros(df)
+as.data.frame(df[ind,])
+
+
+## ----make_measures, dependson="zeroes"----------------------------------
 system.time({measures = calculate_measures(df)})
 
 
-## ----MIMS---------------------------------------------------------------------
+## ----MIMS, dependson="zeroes"-------------------------------------------
 library(MIMSunit)
 hdr = acc$header %>% 
   filter(Field %in% c("Acceleration Min", "Acceleration Max")) %>% 
@@ -246,11 +276,41 @@ system.time({
 measures = full_join(measures, mims)
 
 
-## ----corr---------------------------------------------------------------------
+## ----corr, dependson="zeroes"-------------------------------------------
 library(corrr)
 measures %>% 
   select(-HEADER_TIME_STAMP) %>% 
   correlate() %>% 
   stretch(remove.dups = TRUE, na.rm = TRUE) %>% 
   arrange(desc(r))
+
+
+## ----avg----------------------------------------------------------------
+to_minute = function(x) {
+  x = format(x, "%H:%M:%S")
+  x = hms::as_hms(x)
+  x
+}
+average_day = measures %>% 
+  mutate(HEADER_TIME_STAMP = to_minute(HEADER_TIME_STAMP)) %>% 
+  group_by(HEADER_TIME_STAMP) %>% 
+  summarise_at(vars(AI, SD, MAD, MEDAD), mean, na.rm = TRUE)
+average_day %>%
+  ggplot(aes(x = HEADER_TIME_STAMP, y = AI)) +
+  geom_line()
+
+average_day %>%
+  ggplot(aes(x = HEADER_TIME_STAMP, y = MAD)) +
+  geom_line()
+
+
+## ----make1440-----------------------------------------------------------
+measures1440 = measures %>% 
+  select(HEADER_TIME_STAMP, AI) %>% 
+  mutate(
+    date = lubridate::as_date(HEADER_TIME_STAMP),
+    HEADER_TIME_STAMP = to_minute(HEADER_TIME_STAMP)) %>% 
+  mutate(HEADER_TIME_STAMP = sprintf("MIN_%04.0f", as.numeric(HEADER_TIME_STAMP)/60)) %>% 
+  spread(HEADER_TIME_STAMP, value = AI)
+head(measures1440)
 

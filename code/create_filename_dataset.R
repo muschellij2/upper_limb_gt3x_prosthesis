@@ -89,4 +89,11 @@ data = data %>%
     summary_file = here::here("data", "summaries", 
                               sub("[.]gt3x.*", ".rds", file)))
 
+# 60 s vector magnitude
+data = data %>% 
+  mutate(
+    vm_file = sub("[.]gt3x[.]gz", "_60sVM.csv.gz", outfile),
+    vm_rds = sub("[.]rds", "_60sVM.rds", summary_file)
+  )
+
 write_rds(data, here::here("data", "filenames.rds"))
