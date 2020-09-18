@@ -12,7 +12,7 @@ output:
       collapsed: false
     number_sections: true
     code_download: yes
-    code_folding: hide
+    code_folding: show
 bibliography: refs.bib  
 editor_options: 
   chunk_output_type: console
