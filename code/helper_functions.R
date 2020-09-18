@@ -119,7 +119,7 @@ read_acc_csv = function(file, ...) {
 }
 quick_check = function(df) {
   df = df %>% 
-    mutate(VM_check = round(
+    dplyr::mutate(VM_check = round(
       sqrt(Axis1^2 + Axis2^2 + Axis3^2), 2))
   stopifnot(max(abs(df$VM_check - df$`Vector Magnitude`)) <
               1e-5)

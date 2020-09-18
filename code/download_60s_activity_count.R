@@ -68,7 +68,8 @@ for (ifile in seq(nrow(data))) {
   file = data$vm_file[ifile]
   rds_file = data$vm_rds[ifile]
   summary_file = data$summary_file[ifile]
-  if (!file.exists(rds_file)) {    df = read_acc_csv(file)
+  if (!file.exists(rds_file)) {    
+    df = read_acc_csv(file)
     quick_check(df$data)
     df = df$data 
     df = df %>% 
@@ -78,19 +79,5 @@ for (ifile in seq(nrow(data))) {
 }
 
 
-
-for (ifile in seq(nrow(data))) {
-  print(ifile)
-  file = data$vm_file[ifile]
-  rds_file = data$vm_rds[ifile]
-  summary_file = data$summary_file[ifile]
-  if (!file.exists(rds_file)) {    df = read_acc_csv(file)
-  quick_check(df$data)
-  df = df$data 
-  df = df %>% 
-    select(HEADER_TIME_STAMP, Steps, `Vector Magnitude`)
-  write_rds(df, rds_file, compress = "xz")
-  } 
-}
 
 
