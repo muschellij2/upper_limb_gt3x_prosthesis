@@ -1,7 +1,7 @@
 ---
 title: "Analysis of Raw GT3X files to Summary Measures in Chadwell et. al Data"
 author: "John Muschelli"
-date: '2020-09-18'
+date: '2020-09-22'
 output: 
   bookdown::html_document2: 
     keep_md: true
@@ -54,20 +54,24 @@ If you run into any issues loading any of these packages, you will likely need t
 
 The data is from @chadwell_kenney_granat_thies_galpin_head_2019.  The data consists of 40 subjects, 20 with prostheses, 20 without.  Each wore tri-axial ActiGraph devices for 7 days, one on each arm.  Information about the handedness dominance, arm of prosthetic, and other demographic information was also released.   We will provide the demographics and clinical information related to this population below (in Section \@ref(demographics-data)).
 
-The data is publicly-available through Figshare (https://figshare.com/).  The Figshare project for this data is located at https://springernature.figshare.com/collections/Upper_limb_activity_of_twenty_myoelectric_prosthesis_users_and_twenty_healthy_anatomically_intact_adults_/4457855. The gt3x data is located at https://springernature.figshare.com/articles/Unprocessed_raw_30Hz_acceleration_data_stored_as_gt3x/7946189.  This data consists of one directory of GT3X files.  In order to download them from this project, you need to download the whole data set.  As the data are licensed under [CC0](https://creativecommons.org/publicdomain/zero/1.0/, we have copied the to another Figshare location (https://figshare.com/articles/dataset/Raw_GT3X_Data_Duplicate/11916087), where each `gt3x` file has been renamed without spaces or parentheses, each file can be downloaded separately, and each `gt3x` file has been compressed for faster transfer and smaller storage footprint.
+The data is publicly-available through Figshare (https://figshare.com/).  The Figshare project for this data is located at https://springernature.figshare.com/collections/Upper_limb_activity_of_twenty_myoelectric_prosthesis_users_and_twenty_healthy_anatomically_intact_adults_/4457855. The gt3x data is located at https://springernature.figshare.com/articles/Unprocessed_raw_30Hz_acceleration_data_stored_as_gt3x/7946189.  This data consists of one directory of GT3X files.  In order to download them from this project, you need to download the whole data set.  As the data are licensed under [CC0](https://creativecommons.org/publicdomain/zero/1.0/), we have copied the to another Figshare location (https://figshare.com/articles/dataset/Raw_GT3X_Data_Duplicate/11916087), where each `gt3x` file has been renamed without spaces or parentheses, each file can be downloaded separately, and each `gt3x` file has been compressed for faster transfer and smaller storage footprint.
 
 
 ## Downloading the Data
 
-As the data is publicly available, you do not need to do any authentication to download the data.  You do, however, need to either 1) go to the original repository and download the full data set, 2) go to the Figshare page for the separated data and get the links for the files or download them via a browser, or 3) use the `rfigshare` package to obtain all the links to the data.  As we wish to perform a fully reproducible pipeline, we will download the data programmatically.  In most cases of research, the data will be stored locally or shared on a centralized place, such as a computing cluster.   
+As the data is publicly available, you do not need to do any authentication to download the data.  You do, however, need to either 1) go to the original repository and download the full data set, 2) go to the Figshare page for the separated data and get the links for the files or download them via a browser, or 3) use the `rfigshare` package to obtain all the links to the data [@rfigshare].  As we wish to perform a fully reproducible pipeline, we will download the data programmatically.  In most cases of research, the data will be stored locally or shared on a centralized place, such as a computing cluster.   
 
 
-First, we create an output directory for the data, then we get the details from the Figshare API (application programming interface).  The details we are interested in are the download URL and name of the file, so we can download them locally.  Note, the complete data set is over 2.5 gigabytes of storage.  If storage is an issue, you could download each individual file, process the data set into smaller summary measures, and then delete the downloaded data.  After the code is run, we write out the data set of information to cache it for future use.
+First, we create an output directory for the data, then we get the details from the Figshare API (application programming interface).  
+
+We specify `data_dir` to be the directory where the data will be downloaded; we use the `here` package to specify paths relative to the project directory.
 
 
 ```r
-data_dir = tempdir()
+data_dir = here::here("data")
 ```
+
+The details we are interested in are the download URL and name of the file, so we can download them locally.  Note, the complete data set is over 2.5 gigabytes of storage.  If storage is an issue, you could download each individual file, process the data set into smaller summary measures, and then delete the downloaded data.  After the code is run, we write out the data set of information to cache it for future use.
 
 
 
@@ -560,6 +564,8 @@ df = full_join(meta, df)
 
 
 
+
+
 # Reading in GT3X files
 
 ## Discussion of Package Options
@@ -778,7 +784,7 @@ print(output)
 ```
 
 ```
-[1] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T/RtmpUPjY5u/PU7_NEO1B41100262_2017-05-09.gt3x"
+[1] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T/RtmptKYOqM/PU7_NEO1B41100262_2017-05-09.gt3x"
 attr(,"nbrOfBytes")
 [1] 2544901
 ```
@@ -789,9 +795,9 @@ print(out)
 ```
 
 ```
-[1] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpUPjY5u/log.bin"   
-[2] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpUPjY5u/eeprom.bin"
-[3] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpUPjY5u/info.txt"  
+[1] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmptKYOqM/log.bin"   
+[2] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmptKYOqM/eeprom.bin"
+[3] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmptKYOqM/info.txt"  
 ```
 
 In the "new" format, we see only 2 files, `info.txt`, which holds the metadata/header information and `log.bin`, which holds the "data".  In the older NHANES format, `info.txt` is still present, but the different types of data (activity, light, battery, etc.) are in separate files and the main file for activity is `actviity.bin`. 
@@ -914,6 +920,8 @@ csv_df %>%
   </tr>
 </tbody>
 </table>
+
+
 
 Again, if you wish to download all the data, you can run the following code:
 
@@ -1237,7 +1245,7 @@ gfacet = g + facet_wrap(~ day, ncol = 1)
 gfacet %+% res
 ```
 
-![](index_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+![](index_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
 Now we can observe the differences of activity of the same time, but across days.
 
@@ -1422,7 +1430,7 @@ gfacet = g +
 gfacet %+% res
 ```
 
-![](index_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+![](index_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 
 
