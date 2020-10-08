@@ -403,6 +403,11 @@ We see the information from what ActiGraph software version created the file, as
 
 ```{r show_header}
 acc$header
+```
+
+And look at the parsed header information, which is in the `parsed_header` slot of the output of `read_acc_csv`:
+
+```{r show_header2}
 as.data.frame(csv$parsed_header)
 ```
 

@@ -1,7 +1,7 @@
 ---
 title: "Analysis of Raw GT3X files to Summary Measures in Chadwell et. al Data"
 author: "John Muschelli"
-date: '2020-09-22'
+date: '2020-10-08'
 output: 
   bookdown::html_document2: 
     keep_md: true
@@ -1033,6 +1033,9 @@ acc$header
 10 Download Date    2017-05-17 12:05:23
 # … with 11 more rows
 ```
+
+And look at the parsed header information, which is in the `parsed_header` slot of the output of `read_acc_csv`:
+
 
 ```r
 as.data.frame(csv$parsed_header)

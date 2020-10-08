@@ -5,6 +5,7 @@ library(dplyr)
 library(tidyr)
 library(readr)
 library(lubridate)
+library(pygt3x)
 
 xyz = c("X", "Y", "Z")
 
@@ -18,12 +19,19 @@ csv_df = csv_df %>%
   select(download_url, file, id, serial, group, outfile) %>% 
   tibble::as_tibble()
 
+# reader = "read.gt3x"
+reader = "pygt3x"
+
 
 iid = sample(nrow(df), 1)
 # iid = 13
 # iid = 42
-# for (iid in 43:nrow(df)) {
-for (iid in seq(nrow(df))) {
+# some of them are really large
+for (iid in 42:nrow(df)) {
+# for (iid in seq(nrow(df))) {
+  
+  assign("last.warning", NULL, envir = baseenv())  
+  
   print(iid)
   idf = df[iid, ]
   idf_csv = csv_df %>% 
@@ -48,13 +56,20 @@ for (iid in seq(nrow(df))) {
   csv = tibble::as_tibble(csv$data)
   csv = csv[, c("time", xyz)]
   
-  acc = read_actigraphy(gt3x_file, verbose = FALSE)
-  head(acc$data.out)
-  acc$freq # sample rate
-  acc$header
-  
-  acc_hdr = acc$header
-  acc = tibble::as_tibble(acc$data.out)
+  if (reader == "read.gt3x") {  
+    acc = read_actigraphy(gt3x_file, verbose = FALSE)
+    head(acc$data.out)
+    acc$freq # sample rate
+    acc$header
+    
+    acc_hdr = acc$header
+    acc = tibble::as_tibble(acc$data.out)
+  } 
+  if (reader == "pygt3x") {
+    acc = pygt3x::py_read_gt3x(gt3x_file, verbose = FALSE)
+    acc_hdr = acc$header
+    acc = impute_zeroes(acc)
+  }
   acc = acc[, c("time", xyz)]
   
   stopifnot(nrow(csv) == nrow(acc))
@@ -75,5 +90,5 @@ for (iid in seq(nrow(df))) {
   # }
   rm(acc)
   rm(csv_file)
-  
+  print(warnings())
 }
