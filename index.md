@@ -1,7 +1,7 @@
 ---
 title: "Analysis of Raw GT3X files to Summary Measures in Chadwell et. al Data"
 author: "John Muschelli"
-date: '2020-10-08'
+date: '2020-11-20'
 output: 
   bookdown::html_document2: 
     keep_md: true
@@ -696,20 +696,20 @@ Again, to harmonize the data output format (if different device manufacturers ar
 
 ```r
 acc = read_actigraphy(idf$outfile, verbose = FALSE)
-head(acc$data.out)
+head(acc$data)
 ```
 
 ```
 Sampling Rate: 30Hz
 Firmware Version: 3.2.1
 Serial Number Prefix: NEO
-      X      Y     Z                   time
-1 0.499 -0.176 0.856 2017-05-09 14:00:00.00
-2 0.501 -0.173 0.856 2017-05-09 14:00:00.02
-3 0.504 -0.173 0.856 2017-05-09 14:00:00.06
-4 0.499 -0.176 0.856 2017-05-09 14:00:00.09
-5 0.501 -0.173 0.862 2017-05-09 14:00:00.13
-6 0.501 -0.173 0.856 2017-05-09 14:00:00.17
+      X      Y     Z                time
+1 0.499 -0.176 0.856 2017-05-09 14:00:00
+2 0.501 -0.173 0.856 2017-05-09 14:00:00
+3 0.504 -0.173 0.856 2017-05-09 14:00:00
+4 0.499 -0.176 0.856 2017-05-09 14:00:00
+5 0.501 -0.173 0.862 2017-05-09 14:00:00
+6 0.501 -0.173 0.856 2017-05-09 14:00:00
 ```
 
 ```r
@@ -745,7 +745,7 @@ Let's look at the number of measurements per second to ensure the reported sampl
 
 
 ```r
-res = acc$data.out %>% 
+res = acc$data %>% 
   mutate(dt = floor_date(time, "seconds")) %>% 
   group_by(dt) %>% 
   count()
@@ -766,7 +766,7 @@ all(res$n == acc$freq)
 [1] TRUE
 ```
 
-Thus, we see that the sampling rate is indeed represented accurately in the data.  Note, in some instances, the last second may not have full data, which can be checked using the `tail` of `acc$data.out`.
+Thus, we see that the sampling rate is indeed represented accurately in the data.  Note, in some instances, the last second may not have full data, which can be checked using the `tail` of `acc$data`.
 
 
 ## What is a GT3X file?
@@ -1096,7 +1096,7 @@ stopifnot(idf$side == side)
 Here we will do a quick comparison of the CSV output and GT3X.  Let's do a simple check to see if they have the same number of rows:
 
 ```r
-stopifnot(nrow(acc$data.out) == nrow(csv$data))
+stopifnot(nrow(acc$data) == nrow(csv$data))
 ```
 
 Here we can see if all the X, Y, and Z values are the same:
@@ -1104,7 +1104,7 @@ Here we can see if all the X, Y, and Z values are the same:
 ```r
 xyz = c("X", "Y", "Z")
 # see if they are the same
-rs = unname(rowSums(acc$data.out[, xyz] == csv$data[, xyz]))
+rs = unname(rowSums(acc$data[, xyz] == csv$data[, xyz]))
 all(rs == 3)
 ```
 
@@ -1116,9 +1116,9 @@ Oh no!  They are different!  This difference is due to how ActiGraph conserves b
 
 ```r
 # these rows have all zeros
-stopifnot(all(acc$data.out[which(rs < 3),xyz] == 0))
+stopifnot(all(acc$data[which(rs < 3),xyz] == 0))
 acc = fix_zeros(acc)
-stopifnot(all(acc$data.out[, xyz] == csv$data[, xyz]))
+stopifnot(all(acc$data[, xyz] == csv$data[, xyz]))
 ```
 
 The `AGread::read_gt3x` function, for new GT3X files, also has an option to flag these values. **NB: there have been observed zeroes for all 3 axes in ActiLife CSV outputs as well.  We are unaware when this can happen if idle sleep mode is enabled.  We recommend fixing zeros in that case as well**.  Also, most importantly, make sure any summary measure you are using takes into account for these values, discards these values, or sets them to missing as a true measure and this measure should not be treated equally.  One additional way is to use the variability as a measure, which we use with the Activity Index (AI) below, which was introduced by [@bai2016activity].
@@ -1132,7 +1132,7 @@ In order to plot the data, we will first transform the absolute date to the rela
 
 
 ```r
-res = acc$data.out %>% 
+res = acc$data %>% 
   mutate(day = floor_date(time, "day"),
          time = hms::as_hms(time)) %>% 
   mutate(day = difftime(day, day[1], units = "days") + 1) 
@@ -1304,7 +1304,7 @@ body(calculate_ai)
 
 This definition of  is a re-implementation of that from @bai2016activity, which is implemented in [`ActivityIndex`](https://cran.r-project.org/web/packages/ActivityIndex/index.html).  The method from @bai2016activity estimates a device-specific noise variance, which is commonly done by putting the device on a stationary device and measuring any variance.  As this study had not systematically performed this procedure, we use the version of AI where this variance is set to $0$.   One of the reasons we use this measure is that it has shown to track activiity similar to activity counts from ActiLife and has a simple, straightforward definition and interpretation. 
 
-We see that the the first step is the group the data by 1-second increments, which is done using `floor_date`, then `group_by`, and then, for each second, the variance of X, Y, and Z are calculated.  Thus, each axis per-second variance is estimated; without sub-second data, this measure is zero.  The variances are averaged (divided by 3) and then the square root is taken.  The data has been reduced to second-level here.  Then, the data is grouped by the `epoch`, which we will use as 1 minute, and the sum of these values are taken for all seconds in that minute.  Note, the `time` variable is actually a date-time object, so this is done for each day/time combination separately (i.e. nothing is done across days).  
+We see that the the first step is the group the data by 1-second increments, which is done using `floor_date`, then `group_by`, and then, for each second, the variance of X, Y, and Z are calculated.  Thus, each axis per-second variance is estimated; without sub-second data, this measure is zero.  The variances are averaged (divided by 3) and then the square root is taken.  The data has been reduced to second-level here.  Then, the data is grouped by the `unit`, which we will use as 1 minute, and the sum of these values are taken for all seconds in that minute.  Note, the `time` variable is actually a date-time object, so this is done for each day/time combination separately (i.e. nothing is done across days).  
 
 You can look up the definitions for the measures derived in `calculate_mad` as well.  The `calculate_mims` function calls `MIMSunit::mims_unit` function, which calculates MIMS (Monitor-Independent Movement Summary) of the data.  This function resamples the data to 100Hz data, which takes computational time and increasing the size of the data.  On this interpolated data, it also performs an extrapolation algorithm if the device hits its dynamic range.  By default, `calculate_measures` assumes the dynamic range of the device is $\pm 6$ g, but you should use the values from the header if available, or consult the device documentation:
 
@@ -1331,7 +1331,7 @@ system.time({
 
 ```
    user  system elapsed 
- 30.684   1.246  32.028 
+ 28.656   1.132  29.847 
 ```
 
 ```r
@@ -1358,7 +1358,7 @@ head(measures)
 6 2017-05-09 14:05:00 0      0       0        0          1.01
 ```
 
-We see the measures calculated are Activity Index (`AI`),  the mean Euclidean norm/angle (`mean_r`), Standard Deviation of the Euclidean norm (`SD`), Mean Absolute Deviation around the mean (`MAD`), Median Absolute Deviation around the mean (`MEDAD`), and.  Note, though AI calculates a second-level measures then sums them, all the other measures are calculated all data from that epoch (1 minute) and summarized.  We have not subtracted $1$ gravity from any measure prior to or after calculation.
+We see the measures calculated are Activity Index (`AI`),  the mean Euclidean norm/angle (`mean_r`), Standard Deviation of the Euclidean norm (`SD`), Mean Absolute Deviation around the mean (`MAD`), Median Absolute Deviation around the mean (`MEDAD`), and.  Note, though AI calculates a second-level measures then sums them, all the other measures are calculated all data from that unit (1 minute) and summarized.  We have not subtracted $1$ gravity from any measure prior to or after calculation.
 
 
 ### Calculating MIMS Units
@@ -1384,7 +1384,7 @@ system.time({
 
 ```
    user  system elapsed 
-362.902  33.821 398.534 
+374.801  32.638 408.412 
 ```
 
 

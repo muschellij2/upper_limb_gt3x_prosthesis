@@ -47,6 +47,7 @@ library(kableExtra)
 library(corrr)
 library(readxl)
 library(ggplot2)
+library(zip)
 ```
 
 If you run into any issues loading any of these packages, you will likely need to run `install.packages` to install them.  The few that are on GitHub and not on the main R package repository (CRAN), need to be installed with the `remotes::install_github` function, requiring you to pass in the `user/repository` combination rather than simply the package name.
@@ -76,11 +77,13 @@ The details we are interested in are the download URL and name of the file, so w
 
 
 ```{r get_fs_data}
-outfile = here::here("data", "file_info.rds")
+outfile = here::here("data", "file_info.rds") # file of information
 if (!file.exists(outfile)) {
+  # pull figshare metadata
   x = rfigshare::fs_details("11916087", mine = FALSE, session = NULL)
   
   files = x$files
+  # all_files is a tibble with one row per file
   files = lapply(files, function(x) {
     as.data.frame(x[c("download_url", "name", "id", "size")],
                   stringsAsFactors = FALSE)
@@ -90,15 +93,21 @@ if (!file.exists(outfile)) {
 } else {
   all_files = readr::read_rds(outfile)
 }
+head(all_files)
 ```
 
-The `all_files` data set is all the files from that Figshare repository, which includes the `gt3x` files and the metadata with demographics and behavioral data.  We will separate these out because they need to be read in differently:
+The `all_files` data set is all the files from that Figshare repository, which includes the `gt3x` files and the metadata with demographics and behavioral data.  Let's separate the meta data out from the rest of the gt3x files:
 
 ```{r showmeta}
 meta = all_files %>% 
   filter(grepl("Meta", name))
+meta
 df = all_files %>% 
   filter(grepl("gt3x", name))
+```
+
+Now we see that we have one row per `gt3x` file:
+```{r}
 df %>% 
   head %>% 
   knitr::kable() %>% 
@@ -111,14 +120,17 @@ Below we are doing a series of data manipulations on the file name to create sep
 ```{r filedf}
 df = df %>% 
   rename(file = name) %>% 
+  # parsing the file name by _
   tidyr::separate(file, into = c("id", "serial", "date"), sep = "_",
                   remove = FALSE) %>% 
   mutate(date = sub(".gt3x.*", "", date)) %>% 
   mutate(date = lubridate::ymd(date)) %>% 
+  # determining group by file name
   mutate(group = ifelse(grepl("^PU", basename(file)), 
                         "group_with_prosthesis",
                         "group_without_prosthesis")) %>% 
   mutate(article_id = basename(download_url)) %>% 
+  # making an output file
   mutate(outfile = file.path(data_dir, group, basename(file)))
 df %>% 
   head() %>% 
@@ -204,9 +216,7 @@ meta %>%
   kableExtra::kable_styling()
 ```
 
-We now have all data downloaded and the clinical or demographic information provided with the study.  We can then show how to read the raw `gt3x` files.
-
-We can now merge the demographic and clinical data with the file data set to have one data set to use throughout the analysis: 
+We now have all data downloaded and the clinical or demographic information provided with the study.  We can now merge the demographic and clinical data with the file data set to have one data set to use throughout the analysis: 
 ```{r merge_metadata}
 meta = meta %>% 
   dplyr::select(id, Gender, Age, `Absence_side_(*previously_dominant)`,
@@ -224,22 +234,24 @@ outfile = here::here("data", "file_info_with_metadata.rds")
 readr::write_rds(df, outfile)
 ```
 
-
+We can now show how to read the raw `gt3x` files to create metrics to combine with the demographic and clinical data.
 
 # Reading in GT3X files
 
-## Discussion of Package Options
+## What is a GT3X file?
 
-THe `read.gt3x`, `AGread`, and `pygt3x` R packages can read gt3x files, but only `read.gt3x` and `pygt3x` packages can read in the old GT3X format from NHANES 2003-2006.  As `read.gt3x` is more mature and more thoroughly checked, we will use that package to read the `gt3x` format.  *Note, if you are using Python, the `gt3x` module can be used, which is the backbone for the `pygt3x` R package, which the author has helped develop).  If you need additional information, such as temperature, light information (referred to as Lux), etc, you may want to try `AGread::read_gt3x`.  Additionally, these packages can read in `gt3x` files that have been zipped, including gzipped (extension `gz`), bzipped (`bz2`), or xzipped (`xz`).
-
-THe `SummarizedActigraphy::read_actigraphy` wraps the `read.gt3x` functionality, and puts the output format to the `AccData` format, which is common in the `GGIR` package [@GGIR], a popular analysis R package for accelerometer analysis.  The `read_actigraphy` also tries to read other formats, by using `GGIR::g.readaccfile` and other `GGIR` functionality.  
+This section may be technical, but is **important about removing participant identifiers when sharing data**.  If you want more information on the technical details on how the `.gt3x` format is read in, please visit https://github.com/actigraph/NHANES-GT3X-File-Format and https://github.com/actigraph/GT3X-File-Format.
 
 
-## Reading in one file
+At its core, a `.gt3x` file is simply a zip file.  You can unzip a `.gt3x` with any of the standard ways you'd extract a `.zip` file.  In some systems, it may not allow you to do this.  You should rename the `.gt3x` file to `.zip` and then you should be able to extract it.  Note, if the file name is `.gt3x.gz` then you have g-unzip the file first.  Even though we use "GT3X" generally, there are actually 2 different ways the data was stored, one referred to as the "old" format or the NHANES format.  The other format is generally referred to as a GT3X format or new format, but these semantics are not universal.  
 
-Here we will read in one file.  Though the above code downloaded all the files, this code can be used if you do not want to download the whole data set and explore one file at a time.
+Here we can show the steps of g-unzipping the `.gt3x` file, then running `unzip` to show the package contents. We will do everything in the temporary directory, as we will not need these files in this analysis because they already were extracted using functions to read in `.gt3x` files.
 
-```{r dlone}
+### Downloading one file
+
+Here we will download one file.  Though the above code downloaded all the files, this code can be used if you do not want to download the whole data set and explore one file at a time.  NB: if you are using `download.file` instead of `curl_download`, make sure you set the `mode = "wb"` to download the data via a binary connection, otherwise we have seen issues, especially on Windows.
+
+```{r dlone, echo=TRUE}
 # set.seed(20200804)
 # iid = sample(nrow(df), 1)
 iid = 7
@@ -253,8 +265,93 @@ id = idf$id
 serial = idf$serial
 ```
 
+
+```{r output, dependson="dlone", cache = FALSE}
+output = R.utils::gunzip(gt3x_file, remove = FALSE, temporary = TRUE, overwrite = TRUE)
+print(output)
+zip::unzip(output, exdir = tempdir())
+out = file.path(tempdir(), zip::zip_list(output)$filename)
+print(out)
+info_file = out[grepl("info.txt", out)]
+```
+
+In the "new" format, we see only 2 files, `info.txt`, which holds the metadata/header information and `log.bin`, which holds the "data".  In the older NHANES format, `info.txt` is still present, but the different types of data (activity, light, battery, etc.) are in separate files and the main file for activity is `actviity.bin`. 
+
+We see there is potentially identifiable elements in `info.txt`:
+
+```{r, cache = FALSE}
+info = readLines(info_file)
+info
+```
+
+We can edit these values to those that mask the protected data or remove them altogether.  You can remove the subject name (even though it's anonymized in this example):
+```{r no_name, cache = FALSE}
+info = info[!grepl("Subject Name", info)]
+```
+
+If we want to change the serial number, you should keep the first 3 letter prefix in the beginning because that may be used in the code for determining elements of reading in the data:
+
+```{r new_serial, cache = FALSE}
+serial = info[grepl("Serial", info)]
+serial = sub(".*: ", "", serial)
+nc = nchar(serial)
+serial = substr(serial, 1,3)
+new_serial = paste(sample(c(LETTERS, 0:9), nc - 3), collapse = "")
+new_serial = paste0(serial, new_serial)
+info[grepl("Serial", info)] = paste0("Serial Number: ", new_serial)
+info
+```
+
+
+### Changing dates
+
+Changing dates is a little more complicated and not really implemented right now.  We can show how to edit the metadata information below, but the true dates are embedded in the binary data itself, so it's much more involved to shift them.  Although some of these functions are not exported, we can show you a quick example:
+
+```{r, cache = FALSE}
+date_values = grepl("Date|Last Sample Time", info)
+dates = info[date_values]
+dates
+dates = trimws(sub(".*(Date|Time): ", "", dates))
+dates = read.gt3x:::ticks2datetime(dates)
+dates
+dates = dates - lubridate::as.period(38, unit = "days")
+new_ticks = read.gt3x:::datetime2ticks(dates)
+new_ticks
+# check
+dates == read.gt3x:::ticks2datetime(new_ticks)
+```
+
+Then we can put this in for the date data:
+```{r new_date, cache = FALSE}
+new_date_value = paste0(sub(": .*", ": ", info[date_values]), new_ticks)
+info[date_values] = new_date_value
+info
+```
+
+### Writing out the Meta Data
+And then write out the info back to the same file, then zip the output to a proper `gt3x`.  We will read this in later to show the comparison to the original file:
+```{r, cache = FALSE}
+writeLines(info, info_file)
+new_gt3x_file = tempfile(fileext = ".gt3x")
+zip::zip(files = basename(out), zipfile = new_gt3x_file, root = tempdir(), include_directories = FALSE)
+```
+
+
+
+
+## Discussion of Package Options
+
+THe `read.gt3x`, `AGread`, and `pygt3x` R packages can read gt3x files, but only `read.gt3x` and `pygt3x` packages can read in the "old" GT3X format from NHANES 2003-2006.  As `read.gt3x` is more mature and more thoroughly checked, we will use that package to read the `gt3x` format.  *Note, if you are using Python, the `gt3x` module can be used, which is the backbone for the `pygt3x` R package, which the author has helped develop).  If you need additional information, such as temperature, light information (referred to as Lux), etc, you may want to try `AGread::read_gt3x`.  Additionally, these packages can read in `gt3x` files that have been zipped, including gzipped (extension `gz`), bzipped (`bz2`), or xzipped (`xz`).
+
+THe `SummarizedActigraphy::read_actigraphy` wraps the `read.gt3x` functionality, and puts the output format to the `AccData` format, which is common in the `GGIR` package [@GGIR], a popular analysis R package for accelerometer analysis.  The `read_actigraphy` also tries to read other formats, by using `GGIR::g.readaccfile` and other `GGIR` functionality.  
+
+
+## Reading in one file
+
+Here we will read in the one file we downloaded above.
+
 Once the data is downloaded, you can read the file in using `read.gt3x`:
-```{r gt3x_readin}
+```{r gt3x_readin, dependson="dlone"}
 gt3x_acc = read.gt3x(gt3x_file, verbose = FALSE,
                 asDataFrame = TRUE, imputeZeroes = TRUE)
 gt3x_acc
@@ -277,23 +374,27 @@ names(at)
 at$header
 ```
 
+This information is useful for checking the dates and times are appropriately parsed (e.g. stop date should be close (with 5 seconds) of when the recordings end)
+
 ```{r, include = FALSE}
 rm(gt3x_acc)
 ```
 
-Again, to harmonize the data output format (if different device manufacturers are aggregated), we will use `read_actigraphy`, which uses `read.gt3x`, but makes a different format, which is a list of values.  This design choice is that information such as the header are explicitly codified as opposed to attributes, which can be implicitly removed depending on the operation.  
+Again, to harmonize the data output format (if different device manufacturers are aggregated), we will use `read_actigraphy`, which uses `read.gt3x`, but makes a different format, which is a list of values.  This design choice is that information such as the header are explicitly codified as opposed to attributes, which can be implicitly removed depending on the operation.  We set the header as a `tibble` so that standard `dplyr` functionality works on it.
 
 ```{r readin}
 acc = read_actigraphy(idf$outfile, verbose = FALSE)
-head(acc$data.out)
+head(acc$data)
 acc$freq # sample rate
 acc$header
 ```
 
+Now, this format may be more or less intuitive for your analysis.  If you prefer the output, simply use `read.gt3x`.  The `SummarizedActigraphy` package has the capability to read in other formats, such as Axivity CWA files, which were used in the [UK Biobank](https://www.ukbiobank.ac.uk/) study.  Thus, if you use `SummarizedActigraphy::read_actigraphy`, the code will not change when switching formats and the output should both have a `header` and `data` element.
+
 Let's look at the number of measurements per second to ensure the reported sampling rate is the true sampling rate:
 
 ```{r sample_size, dependson="readin"}
-res = acc$data.out %>% 
+res = acc$data %>% 
   mutate(dt = floor_date(time, "seconds")) %>% 
   group_by(dt) %>% 
   count()
@@ -301,27 +402,7 @@ table(res$n)
 all(res$n == acc$freq)
 ```
 
-Thus, we see that the sampling rate is indeed represented accurately in the data.  Note, in some instances, the last second may not have full data, which can be checked using the `tail` of `acc$data.out`.
-
-
-## What is a GT3X file?
-
-**This section is important about removing potential participant identifiers when sharing data**.
-
-At its core, a `.gt3x` file is simply a zip file.  You can unzip a `.gt3x` with any of the standard ways you'd extract a `.zip` file.  In some systems, it may not allow you to do this.  You should rename the `.gt3x` file to `.zip` and then you should be able to extract it.  Note, if the file name is `.gt3x.gz` then you have g-unzip the file first.  Even though we use "GT3X" generally, there are actually 2 different ways the data was stored, one referred to as the "old" format or the NHANES format.  The other format is generally referred to as a GT3X format or new format, but these semantics are not univeral.  
-
-Here we can show the steps of g-unzipping the `.gt3x` file, then running `unzip` to show the package contents. We will do everything in the temporary directory, as we will not need these files in this analysis because they already were extracted using functions to read in `.gt3x` files.
-
-```{r}
-output = R.utils::gunzip(gt3x_file, remove = FALSE, temporary = TRUE, overwrite = TRUE)
-print(output)
-out = unzip(output, exdir = tempdir())
-print(out)
-```
-
-In the "new" format, we see only 2 files, `info.txt`, which holds the metadata/header information and `log.bin`, which holds the "data".  In the older NHANES format, `info.txt` is still present, but the different types of data (activity, light, battery, etc.) are in separate files and the main file for activity is `actviity.bin`. 
-
-If you want more information on the technical details on how the `.gt3x` format is read in, please visit https://github.com/actigraph/NHANES-GT3X-File-Format and https://github.com/actigraph/GT3X-File-Format.
+Thus, we see that the sampling rate is indeed represented accurately in the data.  Note, in some instances, the last second may not have full data, which can be checked using the `tail` of `acc$data`.  Also, we aim to use functions that read the data in its rawest form.  This form includes data that may have variable sampling rates, which would show slightly different samples per second, (e.g. 99 or 101 records per second for 100Hz data).  Some readers perform implicit resampling, so be sure to check the code and documentation.  The `read.gt3x` function does not perform this and the device we are using has a fixed sampling rate.
 
 
 ## Comparison to a CSV
@@ -431,23 +512,23 @@ stopifnot(idf$side == side)
 
 Here we will do a quick comparison of the CSV output and GT3X.  Let's do a simple check to see if they have the same number of rows:
 ```{r compare_csv_nrow}
-stopifnot(nrow(acc$data.out) == nrow(csv$data))
+stopifnot(nrow(acc$data) == nrow(csv$data))
 ```
 
 Here we can see if all the X, Y, and Z values are the same:
 ```{r compare_csv}
 xyz = c("X", "Y", "Z")
 # see if they are the same
-rs = unname(rowSums(acc$data.out[, xyz] == csv$data[, xyz]))
+rs = unname(rowSums(acc$data[, xyz] == csv$data[, xyz]))
 all(rs == 3)
 ```
 
 Oh no!  They are different!  This difference is due to how ActiGraph conserves battery life, which is referred to as idle sleep mode.  This setting can be changed when setting up the accelerometer.  In idle sleep mode, the last observation is carried forward (LOCF) for all 3 axes.  The `fix_zeros` function allows us to replace these zeroes with the LOCF.    We see that after running `fix_zeros`, we get the same values from the CSV output.
 ```{r fix_zeros}
 # these rows have all zeros
-stopifnot(all(acc$data.out[which(rs < 3),xyz] == 0))
+stopifnot(all(acc$data[which(rs < 3),xyz] == 0))
 acc = fix_zeros(acc)
-stopifnot(all(acc$data.out[, xyz] == csv$data[, xyz]))
+stopifnot(all(acc$data[, xyz] == csv$data[, xyz]))
 ```
 
 The `AGread::read_gt3x` function, for new GT3X files, also has an option to flag these values. **NB: there have been observed zeroes for all 3 axes in ActiLife CSV outputs as well.  We are unaware when this can happen if idle sleep mode is enabled.  We recommend fixing zeros in that case as well**.  Also, most importantly, make sure any summary measure you are using takes into account for these values, discards these values, or sets them to missing as a true measure and this measure should not be treated equally.  One additional way is to use the variability as a measure, which we use with the Activity Index (AI) below, which was introduced by [@bai2016activity].
@@ -460,7 +541,7 @@ Now that we've shown the X/Y/Z values from the `.gt3x` function we read in with 
 In order to plot the data, we will first transform the absolute date to the relative data compared to the first date observed (1-indexed, e.g. day 1, day 2, etc) as we only care about the day/time with respect to the start of measurement.  We'll subset the times between a half hour for plotting.
 
 ```{r p_diff, dependson="readin"}
-res = acc$data.out %>% 
+res = acc$data %>% 
   mutate(day = floor_date(time, "day"),
          time = hms::as_hms(time)) %>% 
   mutate(day = difftime(day, day[1], units = "days") + 1) 
@@ -538,7 +619,7 @@ body(calculate_ai)
 
 This definition of  is a re-implementation of that from @bai2016activity, which is implemented in [`ActivityIndex`](https://cran.r-project.org/web/packages/ActivityIndex/index.html).  The method from @bai2016activity estimates a device-specific noise variance, which is commonly done by putting the device on a stationary device and measuring any variance.  As this study had not systematically performed this procedure, we use the version of AI where this variance is set to $0$.   One of the reasons we use this measure is that it has shown to track activiity similar to activity counts from ActiLife and has a simple, straightforward definition and interpretation. 
 
-We see that the the first step is the group the data by 1-second increments, which is done using `floor_date`, then `group_by`, and then, for each second, the variance of X, Y, and Z are calculated.  Thus, each axis per-second variance is estimated; without sub-second data, this measure is zero.  The variances are averaged (divided by 3) and then the square root is taken.  The data has been reduced to second-level here.  Then, the data is grouped by the `epoch`, which we will use as 1 minute, and the sum of these values are taken for all seconds in that minute.  Note, the `time` variable is actually a date-time object, so this is done for each day/time combination separately (i.e. nothing is done across days).  
+We see that the the first step is the group the data by 1-second increments, which is done using `floor_date`, then `group_by`, and then, for each second, the variance of X, Y, and Z are calculated.  Thus, each axis per-second variance is estimated; without sub-second data, this measure is zero.  The variances are averaged (divided by 3) and then the square root is taken.  The data has been reduced to second-level here.  Then, the data is grouped by the `unit`, which we will use as 1 minute, and the sum of these values are taken for all seconds in that minute.  Note, the `time` variable is actually a date-time object, so this is done for each day/time combination separately (i.e. nothing is done across days).  
 
 You can look up the definitions for the measures derived in `calculate_mad` as well.  The `calculate_mims` function calls `MIMSunit::mims_unit` function, which calculates MIMS (Monitor-Independent Movement Summary) of the data.  This function resamples the data to 100Hz data, which takes computational time and increasing the size of the data.  On this interpolated data, it also performs an extrapolation algorithm if the device hits its dynamic range.  By default, `calculate_measures` assumes the dynamic range of the device is $\pm 6$ g, but you should use the values from the header if available, or consult the device documentation:
 
@@ -558,7 +639,7 @@ dim(measures)
 head(measures)
 ```
 
-We see the measures calculated are Activity Index (`AI`),  the mean Euclidean norm/angle (`mean_r`), Standard Deviation of the Euclidean norm (`SD`), Mean Absolute Deviation around the mean (`MAD`), Median Absolute Deviation around the mean (`MEDAD`), and.  Note, though AI calculates a second-level measures then sums them, all the other measures are calculated all data from that epoch (1 minute) and summarized.  We have not subtracted $1$ gravity from any measure prior to or after calculation.
+We see the measures calculated are Activity Index (`AI`),  the mean Euclidean norm/angle (`mean_r`), Standard Deviation of the Euclidean norm (`SD`), Mean Absolute Deviation around the mean (`MAD`), Median Absolute Deviation around the mean (`MEDAD`), and.  Note, though AI calculates a second-level measures then sums them, all the other measures are calculated all data from that unit (1 minute) and summarized.  We have not subtracted $1$ gravity from any measure prior to or after calculation.
 
 
 ### Calculating MIMS Units

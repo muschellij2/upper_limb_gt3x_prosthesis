@@ -205,7 +205,7 @@ data[iid, c("Gender", "Age")]
 
 
 ## ----create_functions---------------------------------------------------
-calculate_ai = function(df, epoch = "1 min") {
+calculate_ai = function(df, unit = "1 min") {
   sec_df = df %>% 
     mutate(
       HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, "1 sec")) %>% 
@@ -214,18 +214,18 @@ calculate_ai = function(df, epoch = "1 min") {
       AI = sqrt((var(X) + var(Y) + var(Z))/3),
     )
   sec_df %>% mutate(
-    HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, epoch)) %>% 
+    HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, unit)) %>% 
     group_by(HEADER_TIME_STAMP) %>% 
     summarise(
       AI = sum(AI)
     )
 }
 
-calculate_mad = function(df, epoch = "1 min") {
+calculate_mad = function(df, unit = "1 min") {
   df %>% 
     mutate(         
       r = sqrt(X^2+Y^2+Z^2),
-      HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, epoch)) %>% 
+      HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, unit)) %>% 
     group_by(HEADER_TIME_STAMP) %>% 
     summarise(
       SD = sd(r),
@@ -234,9 +234,9 @@ calculate_mad = function(df, epoch = "1 min") {
     )
 }
 
-calculate_measures = function(df, epoch = "1 min") {
-  ai0 = calculate_ai(df, epoch = epoch)
-  mad = calculate_mad(df, epoch = epoch)
+calculate_measures = function(df, unit = "1 min") {
+  ai0 = calculate_ai(df, unit = unit)
+  mad = calculate_mad(df, unit = unit)
   res = full_join(ai0, mad)
   res
 }
