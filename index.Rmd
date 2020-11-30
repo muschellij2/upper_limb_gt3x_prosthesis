@@ -33,7 +33,7 @@ The analysis will be setup as follows: setting up the environment to be able to 
 
 We will be using a number of packages for this analysis.  We will use `dplyr`, `tidyr`, `readr` for data manipulation and input, `lubridate` to manipulate time (which is crucial with accelerometer data).  The `read.gt3x` package from https://github.com/THLfi/read.gt3x will allow us to read in `gt3x` files from ActiGraph.  The `AGread` package and `pygt3x` package can read in these files as well, but may have more limited functionality or are less mature, but are actively developed.  The `SummarizedActigraphy` (https://github.com/muschellij2/SummarizedActigraphy/) package is a wrapper for getting multiple accelerometry and wearable data types into a common data format.  `SummarizedActigraphy` is the least mature of all the packages discussed here.
 
-```{r packages}
+```{r packages, cache = FALSE}
 # remotes::install_github("muschellij2/SummarizedActigraphy")
 library(SummarizedActigraphy)
 # remotes::install_github("THLfi/read.gt3x")
@@ -547,18 +547,24 @@ res = acc$data %>%
   mutate(day = difftime(day, day[1], units = "days") + 1) 
 res = res %>% 
   filter(between(time, 
-                 hms::as_hms("16:00:00"),
-                 hms::as_hms("16:30:00"))
+                 hms::as_hms("14:00:00"),
+                 hms::as_hms("14:30:00"))
          ) 
 head(res, 20)
 ```
 
-We will transform the data into a "long" data set with respect to the 3 axes, so that we can easily plot all 3 axes:
+We will transform the data into a "long" data set with respect to the 3 axes, so that we can easily plot all 3 axes.  We will use the function `gather` from the `tidyr` package, but future code should likely rely on the newer implementation of `pivot_longer` [@tidyr].  
+
 
 ```{r make_long}
 res = res %>% 
   tidyr::gather(key = direction, value = accel, -time, -day)
 head(res, 10)
+```
+
+We can arrange the data so that we see that the X/Y/Z data is represented in the data:
+
+```{r arrange_long}
 res = res %>% 
   arrange(day, time, direction)
 head(res, 10)
@@ -566,7 +572,7 @@ head(res, 10)
 
 Here we use the `ggplot2` package to plot the data across the 3 axes for the data subset based on the time constraints above, with each color for each axis [@ggplot2]. As there are many values for one day, we will plot the first day only
 
-```{r plot}
+```{r plot, cache = FALSE}
 g = res %>%
   filter(day == 1)  %>% 
   ggplot(aes(x = time, y = accel, colour = direction)) +
@@ -600,6 +606,41 @@ gfacet %+% res
 
 Now we can observe the differences of activity of the same time, but across days.
 
+# Non-wear estimation
+Note, we have done no wear-time estimation yet.  The `accelerometry` package has a function `weartime` that creates an indicator of wear or non-wear.  The method in `accelerometry::weartime` is based on activity count values, which may or may not translate well for raw accelerometer values in gravity units.  We will not discuss that in detail here, but @syed2020novel go through a number of wear-time algorithms and have implemented them in the Python repository https://github.com/shaheen-syed/CNN-Non-Wear-Time-Algorithm, which some have been wrapped for R in https://github.com/muschellij2/weartime.  We will use the `weartime` package here to use the wear-time algorithm by van Hees et al. [@van2011estimation;@van2013separating], with the default parameters:
+
+```{r weartime}
+library(weartime)
+wear = wt_hees_2013(acc$data, verbose = 2)
+nrow(acc$data) == nrow(wear)
+head(wear)
+```
+
+We see that the output `data.frame` is the same number of rows as the accelerometer data.  It can either be bound to the data or simply merged on the `time` variable.  A number of analysis steps can be done, including excluding these segments of time, setting them to missing, or "imputing" this data (not recommended).  There are a number of concerns with different methods, especially if different processing is done to the data, such as resampling to another sampling frequency.  We will simply change the values to missing in the following code, but will create a new object `wear_acc` to do a sensitivity analysis below of including the wear values or not:
+
+```{r}
+wear_acc = acc
+wear_acc$data = full_join(wear_acc$data, wear)
+# quick check to see if any NA
+anyNA(wear_acc$data$wear)
+wear_acc$data = wear_acc$data %>% 
+  mutate(
+    X = ifelse(!wear, NA_real_, X),
+    Y = ifelse(!wear, NA_real_, Y),
+    Z = ifelse(!wear, NA_real_, Z)
+  ) %>% 
+  select(-wear)
+```
+
+NB: this doubles the memory footprint of the analysis. 
+
+A number of wear-time detection methods exist, namely that by @choi2011validation, which is implemented in the `wearingMarking` function of the [`PhysicalActivity`](https://cran.r-project.org/package=PhysicalActivity) package.  The method of @troiano2008physical is also popular.  Additionally, the [`actigraph.sleepr`](https://github.com/dipetkov/actigraph.sleepr) package implements these as well.  These methods were validated on 60-second intervals, and likely vector magnitude counts from ActiLife software, so they may need adapting to raw, sub-second, gravity-unit data.  
+
+Moreover, it may be recommended to estimate non-wear periods and remove/put missing values in those regions, then calculate measures or calculate measures on the original data, then remove those that used non-wear data.  
+
+
+
+
 # Data Analysis
 
 Now most of the things we have shown so far use the raw, sub-second data.  Most analyses do not use this raw data, but calculate summary measures at the second, 5 second, minute, or day level.  Many decisions can be made on the order of operations, such as taking the mean of values within a second, then taking the standard deviation or taking the standard deviation of values within a second, then the mean, which are very different measures.  Overall, however, we will use the `calculate_measures` function from `SummarizedActigraphy` to calculate what we want.
@@ -619,42 +660,50 @@ body(calculate_ai)
 
 This definition of  is a re-implementation of that from @bai2016activity, which is implemented in [`ActivityIndex`](https://cran.r-project.org/web/packages/ActivityIndex/index.html).  The method from @bai2016activity estimates a device-specific noise variance, which is commonly done by putting the device on a stationary device and measuring any variance.  As this study had not systematically performed this procedure, we use the version of AI where this variance is set to $0$.   One of the reasons we use this measure is that it has shown to track activiity similar to activity counts from ActiLife and has a simple, straightforward definition and interpretation. 
 
+
 We see that the the first step is the group the data by 1-second increments, which is done using `floor_date`, then `group_by`, and then, for each second, the variance of X, Y, and Z are calculated.  Thus, each axis per-second variance is estimated; without sub-second data, this measure is zero.  The variances are averaged (divided by 3) and then the square root is taken.  The data has been reduced to second-level here.  Then, the data is grouped by the `unit`, which we will use as 1 minute, and the sum of these values are taken for all seconds in that minute.  Note, the `time` variable is actually a date-time object, so this is done for each day/time combination separately (i.e. nothing is done across days).  
 
-You can look up the definitions for the measures derived in `calculate_mad` as well.  The `calculate_mims` function calls `MIMSunit::mims_unit` function, which calculates MIMS (Monitor-Independent Movement Summary) of the data.  This function resamples the data to 100Hz data, which takes computational time and increasing the size of the data.  On this interpolated data, it also performs an extrapolation algorithm if the device hits its dynamic range.  By default, `calculate_measures` assumes the dynamic range of the device is $\pm 6$ g, but you should use the values from the header if available, or consult the device documentation:
 
-```{r dynamic_range}
-acc$header$Value[ acc$header$Field %in% c("Acceleration Min", "Acceleration Max")]
-```
-
-### Calculating Measures 
 Although we will focus on the AI for the analysis, we want to compare the AI measure and the other measures we calculate in this package.
 
-```{r make_measures, dependson = c("readin", "fix_zeros")}
+```{r make_measures, dependson = c("readin", "fix_zeros", "dynamic_range")}
 system.time({
   measures = calculate_measures(df = acc, fix_zeros = FALSE, 
                                 calculate_mims = FALSE)
 })
 dim(measures)
 head(measures)
+system.time({
+  wear_measures = calculate_measures(df = wear_acc, fix_zeros = FALSE, 
+                                calculate_mims = FALSE)
+})
+ind = which(is.na(wear_measures$AI))[1]
+ind = seq(ind - 2, ind + 8)
+measures[ind,]
+wear_measures[ind,]
 ```
 
 We see the measures calculated are Activity Index (`AI`),  the mean Euclidean norm/angle (`mean_r`), Standard Deviation of the Euclidean norm (`SD`), Mean Absolute Deviation around the mean (`MAD`), Median Absolute Deviation around the mean (`MEDAD`), and.  Note, though AI calculates a second-level measures then sums them, all the other measures are calculated all data from that unit (1 minute) and summarized.  We have not subtracted $1$ gravity from any measure prior to or after calculation.
+
+
+You can look up the definitions for the measures derived in `calculate_mad` as well.  The `calculate_mims` function calls `MIMSunit::mims_unit` function, which calculates MIMS (Monitor-Independent Movement Summary) of the data [@MIMSunit].  This function resamples the data to 100Hz data, which takes computational time and increasing the size of the data.  On this interpolated data, it also performs an extrapolation algorithm if the device hits its dynamic range.  By default, `calculate_measures` assumes the dynamic range of the device is $\pm 6$ g, but you should use the values from the header if available, or consult the device documentation:
+
+```{r dynamic_range}
+acc_ranges  = acc$header$Value[ acc$header$Field %in% c("Acceleration Min", "Acceleration Max")]
+acc_ranges
+acc_ranges = sort(as.numeric(acc_ranges))
+```
 
 
 ### Calculating MIMS Units
 
 We will calculate MIMS units with the `MIMSunit` package.  As we see below, this takes a significant amount of time.  Set `calculate_mims = TRUE` in `calculate_measures` only if you want to use this measure or compare it to the other measures (which we will show below).  
 
-```{r MIMS, dependson = c("readin", "fix_zeros")}
+```{r MIMS, dependson = c("readin", "fix_zeros", "dynamic_range")}
 library(MIMSunit)
-hdr = acc$header %>% 
-  filter(Field %in% c("Acceleration Min", "Acceleration Max")) %>% 
-  mutate(Value = as.numeric(Value))
-dynamic_range = range(hdr$Value)
 system.time({
   mims = calculate_mims(acc, 
-              dynamic_range = dynamic_range)
+              dynamic_range = acc_ranges)
 })
 ```
 
@@ -664,9 +713,23 @@ mims = mims %>%
 measures = full_join(measures, mims)
 ```
 
+
+```{r wear_MIMS, dependson = c("readin", "fix_zeros", "dynamic_range")}
+library(MIMSunit)
+system.time({
+  wear_mims = calculate_mims(wear_acc, 
+              dynamic_range = acc_ranges)
+})
+wear_mims = wear_mims %>% 
+  dplyr::rename(time = HEADER_TIME_STAMP)
+wear_measures = full_join(wear_measures, mims)
+```
+
 ### Plotting Measures
 
-```{r plotmeas}
+We will use the [`ggplot2`](https://ggplot2.tidyverse.org/) package for plotting the data for different axes [@ggplot2].  In order to plot all measures on the same plot, we must reshape the data.  Again, we will use the function `gather` from the `tidyr` package, but future code should likely rely on the newer implementation of `pivot_longer` [@tidyr].  
+
+```{r reshaper}
 res = measures %>% 
   mutate(day = floor_date(time, "day"),
          time = hms::as_hms(time)) %>% 
@@ -675,6 +738,13 @@ res = res %>%
   tidyr::gather(key = measure, value = value, -time, -day)
 res = res %>% 
   arrange(day, time, measure)
+head(res)
+```
+
+We see that each measure 
+
+We will plot the data, looking only at the first day of values:
+```{r plotmeas}
 g = res %>%
   filter(day == 1)  %>% 
   ggplot(aes(x = time, y = value)) +
@@ -691,6 +761,10 @@ g = res %>%
 print(g)
 ```
 
+
+<!-- The `weartime` package is not ready for production yet but should be ready for use in the coming months. -->
+
+We can take this plot and change the data to have days 2 through 5:
 ```{r}
 res = res %>% 
   filter(day %in% c(2:5))
@@ -699,6 +773,7 @@ gfacet = g +
 gfacet %+% res
 ```
 
+Where we see very different values at the same time at different days.
 
 
 ### Correlation of Measures
@@ -710,6 +785,14 @@ library(corrr)
 measures %>% 
   select(-time) %>% 
   correlate() %>% 
+  stretch(remove.dups = TRUE, na.rm = TRUE) %>% 
+  arrange(desc(r))
+```
+
+```{r wcorr, dependson=c("make_measures", "merge_data", "MIMS")}
+wear_measures %>% 
+  select(-time) %>% 
+  correlate(use = "pairwise.complete.obs") %>% 
   stretch(remove.dups = TRUE, na.rm = TRUE) %>% 
   arrange(desc(r))
 ```

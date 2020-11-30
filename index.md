@@ -1,7 +1,7 @@
 ---
 title: "Analysis of Raw GT3X files to Summary Measures in Chadwell et. al Data"
 author: "John Muschelli"
-date: '2020-11-20'
+date: '2020-11-30'
 output: 
   bookdown::html_document2: 
     keep_md: true
@@ -649,7 +649,7 @@ print(output)
 ```
 
 ```
-[1] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T/RtmpFiOrRH/PU7_NEO1B41100262_2017-05-09.gt3x"
+[1] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T/RtmpyTG9T1/PU7_NEO1B41100262_2017-05-09.gt3x"
 attr(,"nbrOfBytes")
 [1] 2544901
 ```
@@ -661,9 +661,9 @@ print(out)
 ```
 
 ```
-[1] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpFiOrRH/log.bin"   
-[2] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpFiOrRH/eeprom.bin"
-[3] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpFiOrRH/info.txt"  
+[1] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpyTG9T1/log.bin"   
+[2] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpyTG9T1/eeprom.bin"
+[3] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpyTG9T1/info.txt"  
 ```
 
 ```r
@@ -1353,8 +1353,8 @@ res = acc$data %>%
   mutate(day = difftime(day, day[1], units = "days") + 1) 
 res = res %>% 
   filter(between(time, 
-                 hms::as_hms("16:00:00"),
-                 hms::as_hms("16:30:00"))
+                 hms::as_hms("14:00:00"),
+                 hms::as_hms("14:30:00"))
          ) 
 ```
 
@@ -1371,15 +1371,16 @@ Sampling Rate: 30Hz
 Firmware Version: 3.2.1
 Serial Number Prefix: NEO
       X      Y     Z        time    day
-1 -0.51 -0.716 0.378 16:00:00.00 1 days
-2 -0.51 -0.716 0.378 16:00:00.03 1 days
-3 -0.51 -0.716 0.378 16:00:00.07 1 days
-4 -0.51 -0.716 0.378 16:00:00.10 1 days
-5 -0.51 -0.716 0.378 16:00:00.13 1 days
-6 -0.51 -0.716 0.378 16:00:00.17 1 days
+1 0.499 -0.176 0.856 14:00:00.00 1 days
+2 0.501 -0.173 0.856 14:00:00.03 1 days
+3 0.504 -0.173 0.856 14:00:00.07 1 days
+4 0.499 -0.176 0.856 14:00:00.10 1 days
+5 0.501 -0.173 0.862 14:00:00.13 1 days
+6 0.501 -0.173 0.856 14:00:00.17 1 days
 ```
 
-We will transform the data into a "long" data set with respect to the 3 axes, so that we can easily plot all 3 axes:
+We will transform the data into a "long" data set with respect to the 3 axes, so that we can easily plot all 3 axes.  We will use the function `gather` from the `tidyr` package, but future code should likely rely on the newer implementation of `pivot_longer` [@tidyr].  
+
 
 
 ```r
@@ -1390,17 +1391,20 @@ head(res, 10)
 
 ```
           time    day direction accel
-1  16:00:00.00 1 days         X -0.51
-2  16:00:00.03 1 days         X -0.51
-3  16:00:00.07 1 days         X -0.51
-4  16:00:00.10 1 days         X -0.51
-5  16:00:00.13 1 days         X -0.51
-6  16:00:00.17 1 days         X -0.51
-7  16:00:00.20 1 days         X -0.51
-8  16:00:00.23 1 days         X -0.51
-9  16:00:00.27 1 days         X -0.51
-10 16:00:00.30 1 days         X -0.51
+1  14:00:00.00 1 days         X 0.499
+2  14:00:00.03 1 days         X 0.501
+3  14:00:00.07 1 days         X 0.504
+4  14:00:00.10 1 days         X 0.499
+5  14:00:00.13 1 days         X 0.501
+6  14:00:00.17 1 days         X 0.501
+7  14:00:00.20 1 days         X 0.499
+8  14:00:00.23 1 days         X 0.501
+9  14:00:00.27 1 days         X 0.504
+10 14:00:00.30 1 days         X 0.501
 ```
+
+We can arrange the data so that we see that the X/Y/Z data is represented in the data:
+
 
 ```r
 res = res %>% 
@@ -1410,16 +1414,16 @@ head(res, 10)
 
 ```
           time    day direction  accel
-1  16:00:00.00 1 days         X -0.510
-2  16:00:00.00 1 days         Y -0.716
-3  16:00:00.00 1 days         Z  0.378
-4  16:00:00.03 1 days         X -0.510
-5  16:00:00.03 1 days         Y -0.716
-6  16:00:00.03 1 days         Z  0.378
-7  16:00:00.07 1 days         X -0.510
-8  16:00:00.07 1 days         Y -0.716
-9  16:00:00.07 1 days         Z  0.378
-10 16:00:00.10 1 days         X -0.510
+1  14:00:00.00 1 days         X  0.499
+2  14:00:00.00 1 days         Y -0.176
+3  14:00:00.00 1 days         Z  0.856
+4  14:00:00.03 1 days         X  0.501
+5  14:00:00.03 1 days         Y -0.173
+6  14:00:00.03 1 days         Z  0.856
+7  14:00:00.07 1 days         X  0.504
+8  14:00:00.07 1 days         Y -0.173
+9  14:00:00.07 1 days         Z  0.856
+10 14:00:00.10 1 days         X  0.499
 ```
 
 Here we use the `ggplot2` package to plot the data across the 3 axes for the data subset based on the time constraints above, with each color for each axis [@ggplot2]. As there are many values for one day, we will plot the first day only
@@ -1466,6 +1470,69 @@ gfacet %+% res
 ![](index_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 Now we can observe the differences of activity of the same time, but across days.
+
+# Non-wear estimation
+Note, we have done no wear-time estimation yet.  The `accelerometry` package has a function `weartime` that creates an indicator of wear or non-wear.  The method in `accelerometry::weartime` is based on activity count values, which may or may not translate well for raw accelerometer values in gravity units.  We will not discuss that in detail here, but @syed2020novel go through a number of wear-time algorithms and have implemented them in the Python repository https://github.com/shaheen-syed/CNN-Non-Wear-Time-Algorithm, which some have been wrapped for R in https://github.com/muschellij2/weartime.  We will use the `weartime` package here to use the wear-time algorithm by van Hees et al. [@van2011estimation;@van2013separating], with the default parameters:
+
+
+```r
+library(weartime)
+wear = wt_hees_2013(acc$data, verbose = 2)
+nrow(acc$data) == nrow(wear)
+```
+
+```
+[1] TRUE
+```
+
+```r
+head(wear)
+```
+
+```
+# A tibble: 6 x 2
+  time                wear 
+  <dttm>              <lgl>
+1 2017-05-09 14:00:00 TRUE 
+2 2017-05-09 14:00:00 TRUE 
+3 2017-05-09 14:00:00 TRUE 
+4 2017-05-09 14:00:00 TRUE 
+5 2017-05-09 14:00:00 TRUE 
+6 2017-05-09 14:00:00 TRUE 
+```
+
+We see that the output `data.frame` is the same number of rows as the accelerometer data.  It can either be bound to the data or simply merged on the `time` variable.  A number of analysis steps can be done, including excluding these segments of time, setting them to missing, or "imputing" this data (not recommended).  There are a number of concerns with different methods, especially if different processing is done to the data, such as resampling to another sampling frequency.  We will simply change the values to missing in the following code, but will create a new object `wear_acc` to do a sensitivity analysis below of including the wear values or not:
+
+
+```r
+wear_acc = acc
+wear_acc$data = full_join(wear_acc$data, wear)
+# quick check to see if any NA
+anyNA(wear_acc$data$wear)
+```
+
+```
+[1] FALSE
+```
+
+```r
+wear_acc$data = wear_acc$data %>% 
+  mutate(
+    X = ifelse(!wear, NA_real_, X),
+    Y = ifelse(!wear, NA_real_, Y),
+    Z = ifelse(!wear, NA_real_, Z)
+  ) %>% 
+  select(-wear)
+```
+
+NB: this doubles the memory footprint of the analysis. 
+
+A number of wear-time detection methods exist, namely that by @choi2011validation, which is implemented in the `wearingMarking` function of the [`PhysicalActivity`](https://cran.r-project.org/package=PhysicalActivity) package.  The method of @troiano2008physical is also popular.  Additionally, the [`actigraph.sleepr`](https://github.com/dipetkov/actigraph.sleepr) package implements these as well.  These methods were validated on 60-second intervals, and likely vector magnitude counts from ActiLife software, so they may need adapting to raw, sub-second, gravity-unit data.  
+
+Moreover, it may be recommended to estimate non-wear periods and remove/put missing values in those regions, then calculate measures or calculate measures on the original data, then remove those that used non-wear data.  
+
+
+
 
 # Data Analysis
 
@@ -1519,21 +1586,10 @@ body(calculate_ai)
 
 This definition of  is a re-implementation of that from @bai2016activity, which is implemented in [`ActivityIndex`](https://cran.r-project.org/web/packages/ActivityIndex/index.html).  The method from @bai2016activity estimates a device-specific noise variance, which is commonly done by putting the device on a stationary device and measuring any variance.  As this study had not systematically performed this procedure, we use the version of AI where this variance is set to $0$.   One of the reasons we use this measure is that it has shown to track activiity similar to activity counts from ActiLife and has a simple, straightforward definition and interpretation. 
 
+
 We see that the the first step is the group the data by 1-second increments, which is done using `floor_date`, then `group_by`, and then, for each second, the variance of X, Y, and Z are calculated.  Thus, each axis per-second variance is estimated; without sub-second data, this measure is zero.  The variances are averaged (divided by 3) and then the square root is taken.  The data has been reduced to second-level here.  Then, the data is grouped by the `unit`, which we will use as 1 minute, and the sum of these values are taken for all seconds in that minute.  Note, the `time` variable is actually a date-time object, so this is done for each day/time combination separately (i.e. nothing is done across days).  
 
-You can look up the definitions for the measures derived in `calculate_mad` as well.  The `calculate_mims` function calls `MIMSunit::mims_unit` function, which calculates MIMS (Monitor-Independent Movement Summary) of the data.  This function resamples the data to 100Hz data, which takes computational time and increasing the size of the data.  On this interpolated data, it also performs an extrapolation algorithm if the device hits its dynamic range.  By default, `calculate_measures` assumes the dynamic range of the device is $\pm 6$ g, but you should use the values from the header if available, or consult the device documentation:
 
-
-```r
-acc$header$Value[ acc$header$Field %in% c("Acceleration Min", "Acceleration Max")]
-```
-
-```
-Acceleration Min Acceleration Max 
-          "-6.0"            "6.0" 
-```
-
-### Calculating Measures 
 Although we will focus on the AI for the analysis, we want to compare the AI measure and the other measures we calculate in this package.
 
 
@@ -1546,7 +1602,7 @@ system.time({
 
 ```
    user  system elapsed 
- 28.656   1.132  29.847 
+ 40.920   3.480  44.636 
 ```
 
 ```r
@@ -1573,7 +1629,81 @@ head(measures)
 6 2017-05-09 14:05:00 0      0       0        0          1.01
 ```
 
+```r
+system.time({
+  wear_measures = calculate_measures(df = wear_acc, fix_zeros = FALSE, 
+                                calculate_mims = FALSE)
+})
+```
+
+```
+   user  system elapsed 
+ 33.479   1.487  35.183 
+```
+
+```r
+ind = which(is.na(wear_measures$AI))[1]
+ind = seq(ind - 2, ind + 8)
+measures[ind,]
+```
+
+```
+# A tibble: 11 x 6
+   time                   AI    SD   MAD MEDAD mean_r
+   <dttm>              <dbl> <dbl> <dbl> <dbl>  <dbl>
+ 1 2017-05-09 15:58:00     0     0     0     0  0.957
+ 2 2017-05-09 15:59:00     0     0     0     0  0.957
+ 3 2017-05-09 16:00:00     0     0     0     0  0.957
+ 4 2017-05-09 16:01:00     0     0     0     0  0.957
+ 5 2017-05-09 16:02:00     0     0     0     0  0.957
+ 6 2017-05-09 16:03:00     0     0     0     0  0.957
+ 7 2017-05-09 16:04:00     0     0     0     0  0.957
+ 8 2017-05-09 16:05:00     0     0     0     0  0.957
+ 9 2017-05-09 16:06:00     0     0     0     0  0.957
+10 2017-05-09 16:07:00     0     0     0     0  0.957
+11 2017-05-09 16:08:00     0     0     0     0  0.957
+```
+
+```r
+wear_measures[ind,]
+```
+
+```
+# A tibble: 11 x 6
+   time                   AI    SD   MAD MEDAD  mean_r
+   <dttm>              <dbl> <dbl> <dbl> <dbl>   <dbl>
+ 1 2017-05-09 15:58:00     0     0     0     0   0.957
+ 2 2017-05-09 15:59:00     0     0     0     0   0.957
+ 3 2017-05-09 16:00:00    NA    NA   NaN    NA NaN    
+ 4 2017-05-09 16:01:00    NA    NA   NaN    NA NaN    
+ 5 2017-05-09 16:02:00    NA    NA   NaN    NA NaN    
+ 6 2017-05-09 16:03:00    NA    NA   NaN    NA NaN    
+ 7 2017-05-09 16:04:00    NA    NA   NaN    NA NaN    
+ 8 2017-05-09 16:05:00    NA    NA   NaN    NA NaN    
+ 9 2017-05-09 16:06:00    NA    NA   NaN    NA NaN    
+10 2017-05-09 16:07:00    NA    NA   NaN    NA NaN    
+11 2017-05-09 16:08:00    NA    NA   NaN    NA NaN    
+```
+
 We see the measures calculated are Activity Index (`AI`),  the mean Euclidean norm/angle (`mean_r`), Standard Deviation of the Euclidean norm (`SD`), Mean Absolute Deviation around the mean (`MAD`), Median Absolute Deviation around the mean (`MEDAD`), and.  Note, though AI calculates a second-level measures then sums them, all the other measures are calculated all data from that unit (1 minute) and summarized.  We have not subtracted $1$ gravity from any measure prior to or after calculation.
+
+
+You can look up the definitions for the measures derived in `calculate_mad` as well.  The `calculate_mims` function calls `MIMSunit::mims_unit` function, which calculates MIMS (Monitor-Independent Movement Summary) of the data [@MIMSunit].  This function resamples the data to 100Hz data, which takes computational time and increasing the size of the data.  On this interpolated data, it also performs an extrapolation algorithm if the device hits its dynamic range.  By default, `calculate_measures` assumes the dynamic range of the device is $\pm 6$ g, but you should use the values from the header if available, or consult the device documentation:
+
+
+```r
+acc_ranges  = acc$header$Value[ acc$header$Field %in% c("Acceleration Min", "Acceleration Max")]
+acc_ranges
+```
+
+```
+Acceleration Min Acceleration Max 
+          "-6.0"            "6.0" 
+```
+
+```r
+acc_ranges = sort(as.numeric(acc_ranges))
+```
 
 
 ### Calculating MIMS Units
@@ -1583,13 +1713,9 @@ We will calculate MIMS units with the `MIMSunit` package.  As we see below, this
 
 ```r
 library(MIMSunit)
-hdr = acc$header %>% 
-  filter(Field %in% c("Acceleration Min", "Acceleration Max")) %>% 
-  mutate(Value = as.numeric(Value))
-dynamic_range = range(hdr$Value)
 system.time({
   mims = calculate_mims(acc, 
-              dynamic_range = dynamic_range)
+              dynamic_range = acc_ranges)
 })
 ```
 
@@ -1599,7 +1725,7 @@ system.time({
 
 ```
    user  system elapsed 
-374.801  32.638 408.412 
+384.406  32.183 417.887 
 ```
 
 
@@ -1609,7 +1735,34 @@ mims = mims %>%
 measures = full_join(measures, mims)
 ```
 
+
+
+```r
+library(MIMSunit)
+system.time({
+  wear_mims = calculate_mims(wear_acc, 
+              dynamic_range = acc_ranges)
+})
+```
+
+```
+================================================================================
+```
+
+```
+   user  system elapsed 
+371.221  27.109 398.381 
+```
+
+```r
+wear_mims = wear_mims %>% 
+  dplyr::rename(time = HEADER_TIME_STAMP)
+wear_measures = full_join(wear_measures, mims)
+```
+
 ### Plotting Measures
+
+We will use the [`ggplot2`](https://ggplot2.tidyverse.org/) package for plotting the data for different axes [@ggplot2].  In order to plot all measures on the same plot, we must reshape the data.  Again, we will use the function `gather` from the `tidyr` package, but future code should likely rely on the newer implementation of `pivot_longer` [@tidyr].  
 
 
 ```r
@@ -1621,6 +1774,26 @@ res = res %>%
   tidyr::gather(key = measure, value = value, -time, -day)
 res = res %>% 
   arrange(day, time, measure)
+head(res)
+```
+
+```
+# A tibble: 6 x 4
+  time   day    measure      value
+  <time> <drtn> <chr>        <dbl>
+1 14:00  1 days AI        0.0243  
+2 14:00  1 days MAD       0.000736
+3 14:00  1 days mean_r    1.01    
+4 14:00  1 days MEDAD     0.000281
+5 14:00  1 days MIMS_UNIT 0.843   
+6 14:00  1 days SD        0.00140 
+```
+
+We see that each measure 
+
+We will plot the data, looking only at the first day of values:
+
+```r
 g = res %>%
   filter(day == 1)  %>% 
   ggplot(aes(x = time, y = value)) +
@@ -1640,6 +1813,10 @@ print(g)
 ![](index_files/figure-html/plotmeas-1.png)<!-- -->
 
 
+<!-- The `weartime` package is not ready for production yet but should be ready for use in the coming months. -->
+
+We can take this plot and change the data to have days 2 through 5:
+
 ```r
 res = res %>% 
   filter(day %in% c(2:5))
@@ -1648,8 +1825,9 @@ gfacet = g +
 gfacet %+% res
 ```
 
-![](index_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+![](index_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
+Where we see very different values at the same time at different days.
 
 
 ### Correlation of Measures
@@ -1685,6 +1863,36 @@ measures %>%
 13 SD     mean_r    -0.0316 
 14 MAD    mean_r    -0.0434 
 15 MEDAD  mean_r    -0.0582 
+```
+
+
+```r
+wear_measures %>% 
+  select(-time) %>% 
+  correlate(use = "pairwise.complete.obs") %>% 
+  stretch(remove.dups = TRUE, na.rm = TRUE) %>% 
+  arrange(desc(r))
+```
+
+```
+# A tibble: 15 x 3
+   x      y             r
+   <chr>  <chr>     <dbl>
+ 1 SD     MAD       0.973
+ 2 AI     MIMS_UNIT 0.971
+ 3 AI     SD        0.962
+ 4 AI     MAD       0.956
+ 5 MAD    MEDAD     0.952
+ 6 SD     MIMS_UNIT 0.907
+ 7 MAD    MIMS_UNIT 0.873
+ 8 SD     MEDAD     0.868
+ 9 AI     MEDAD     0.861
+10 MEDAD  MIMS_UNIT 0.746
+11 mean_r MIMS_UNIT 0.297
+12 AI     mean_r    0.269
+13 SD     mean_r    0.230
+14 MAD    mean_r    0.188
+15 MEDAD  mean_r    0.123
 ```
 
 And we see the same information in a correlation plot:
