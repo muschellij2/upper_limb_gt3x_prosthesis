@@ -5,9 +5,125 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 ```
 
 All data/code is located at https://github.com/muschellij2/upper_limb_gt3x_prosthesis.
 
+# Setup
+Load some packages
+```{r load_packages, cache = FALSE}
+library(dplyr)
+library(readr)
+library(here)
+library(mgcv)
+library(ggplot2)
+```
 
+# Reading in Data
+
+Here we load the full data, of all participants for all days, at a minute level:
+```{r}
+full_file = here::here("data", "all_minute_data.rds")
+
+data = read_rds(full_file) %>% 
+  rename(vectormagnitude = `Vector Magnitude`)
+
+data = data %>% 
+  mutate(MIMS_UNIT = ifelse(MIMS_UNIT < 0, 0, MIMS_UNIT))
+head(data)
+```
+# Exploration
+
+## MIMS units
+```{r mims_plot}
+data %>% 
+  ggplot(aes(x = vectormagnitude, y = MIMS_UNIT)) + 
+  geom_hex()
+
+data %>% 
+  ggplot(aes(x = vectormagnitude, y = MIMS_UNIT)) + 
+  geom_point(alpha = 0.1)
+
+data %>% 
+  filter(MIMS_UNIT > 0) %>% 
+  ggplot(aes(x = vectormagnitude, y = MIMS_UNIT)) + 
+  geom_point(alpha = 0.1)
+```
+
+## AI
+```{r ai_plot}
+data %>% 
+  ggplot(aes(x = vectormagnitude, y = AI)) + 
+  geom_hex()
+data %>% 
+  ggplot(aes(x = vectormagnitude, y = AI)) + 
+  geom_point(alpha = 0.1) + geom_smooth(se = FALSE)
+
+data %>% 
+  filter(AI > 0) %>% 
+  ggplot(aes(x = vectormagnitude, y = MIMS_UNIT)) + 
+  geom_point(alpha = 0.1)
+```
+
+# Estimation
+
+## MIMS Unit
+Here we take some thresholds for activity established for vector magnitude and estimating those thresholds for MIMS units using a generalized additive model (GAM) from the `mgcv` package:
+```{r mims_pred}
+pred_df = data.frame(vectormagnitude = c(100, 1853, 1952, 2690))
+
+mod = gam(MIMS_UNIT ~ s(vectormagnitude, bs = "cr"), data = data)
+predict(mod, newdata = pred_df)
+```
+
+We can do the same thing for where vector magnitude is greater than 0:
+```{r mims_pred0}
+mod_over0 = gam(MIMS_UNIT ~ s(vectormagnitude, bs = "cr"), 
+                data = data %>% 
+                  filter(vectormagnitude > 0))
+predict(mod_over0, newdata = pred_df)
+```
+
+## AI
+
+We will do the same thing using activity index:
+```{r ai_pred}
+mod = gam(AI ~ s(vectormagnitude, bs = "cr"), data = data)
+
+predict(mod, newdata = pred_df)
+```
+
+We can do the same thing for where vector magnitude is greater than 0:
+```{r ai_pred0}
+mod_over0 = gam(AI ~ s(vectormagnitude, bs = "cr"), 
+                data = data %>% 
+                  filter(vectormagnitude > 0))
+predict(mod_over0, newdata = pred_df)
+```
+
+## Using Bivariate Estimates
+
+We can use a very simple, but non-parametric estimate of this relationship by using a bivariate CDF estimator.  We round the data because this will have as many unique values as in the observed bivariate distribution:
+
+```{r bivariate}
+data = data %>% 
+  mutate(
+    MIMS_UNIT = round(MIMS_UNIT, 2),
+         vectormagnitude = round(vectormagnitude, 1))
+bivar = data %>% 
+  select(MIMS_UNIT, vectormagnitude) %>% 
+  group_by(MIMS_UNIT, vectormagnitude) %>% 
+  summarise(n = n(), .groups ="drop")
+head(bivar)
+head(
+  bivar %>% 
+  filter(vectormagnitude >= 1851 & vectormagnitude <= 1853)
+)
+bivar %>% 
+  filter(vectormagnitude >= 1851 & vectormagnitude <= 1853) %>% 
+  summarise(sum(n *MIMS_UNIT)/sum(n))
+bivar %>% 
+  filter(vectormagnitude >= 1851.5 & vectormagnitude <= 1852.5) %>% 
+  summarise(sum(n *MIMS_UNIT)/sum(n))
+```
