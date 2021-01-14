@@ -6,18 +6,12 @@ library(readr)
 library(lubridate)
 
 
-token_file = here::here("fs_token.rds")
-if (file.exists(token_file)) {
-  token = readr::read_rds(token_file)
-  assign("oauth", token, envir = rfigshare:::FigshareAuthCache)
-}
 data_dir = here::here("data")
 
 outfile = here::here("data", "file_info.rds")
-if (
-  (file.exists(token_file) && !file.exists(outfile)) ||
-  !file.exists(token_file)) {
-  x = rfigshare::fs_details("11916087")
+if (!file.exists(outfile)) {
+  x = rfigshare::fs_details("11916087", mine = FALSE,
+                            session = NULL)
   
   files = x$files
   files = lapply(files, function(x) {

@@ -10,12 +10,6 @@ library(R.utils)
 
 source(here::here("code/helper_functions.R"))
 
-token_file = here::here("fs_token.rds")
-if (file.exists(token_file)) {
-  token = readr::read_rds(token_file)
-  assign("oauth", token, envir = rfigshare:::FigshareAuthCache)
-}
-
 filename = here::here("data", "filenames.rds")
 data = read_rds(filename)
 data_dir = here::here("data")
@@ -25,7 +19,8 @@ data = data %>%
 
 if (!all(file.exists(data$vm_file))) {
   # this is the 60s vector magnitude
-  x = rfigshare::fs_details("7946174")
+  x = rfigshare::fs_details("7946174", mine = FALSE,
+                            session = NULL)  
   files = x$files
   stopifnot(length(files) == 1)
   files = files[[1]]

@@ -1,0 +1,13 @@
+---
+title: "Estimating Thresolds Compared to Vector Magnitude Counts"
+author: "John Muschelli"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+All data/code is located at https://github.com/muschellij2/upper_limb_gt3x_prosthesis.
+
+

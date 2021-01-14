@@ -1,7 +1,7 @@
 ---
 title: "Analysis of Raw GT3X files to Summary Measures in Chadwell et. al Data"
 author: "John Muschelli"
-date: '2020-11-30'
+date: '2021-01-14'
 output: 
   bookdown::html_document2: 
     keep_md: true
@@ -649,7 +649,7 @@ print(output)
 ```
 
 ```
-[1] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T/RtmpyTG9T1/PU7_NEO1B41100262_2017-05-09.gt3x"
+[1] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T/Rtmp3N8Qws/PU7_NEO1B41100262_2017-05-09.gt3x"
 attr(,"nbrOfBytes")
 [1] 2544901
 ```
@@ -661,9 +661,9 @@ print(out)
 ```
 
 ```
-[1] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpyTG9T1/log.bin"   
-[2] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpyTG9T1/eeprom.bin"
-[3] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpyTG9T1/info.txt"  
+[1] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//Rtmp3N8Qws/log.bin"   
+[2] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//Rtmp3N8Qws/eeprom.bin"
+[3] "/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//Rtmp3N8Qws/info.txt"  
 ```
 
 ```r

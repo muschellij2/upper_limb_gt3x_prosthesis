@@ -11,7 +11,7 @@
 
 <meta name="author" content="John Muschelli" />
 
-<meta name="date" content="2020-11-30" />
+<meta name="date" content="2021-01-14" />
 
 <title>Analysis of Raw GT3X files to Summary Measures in Chadwell et. al Data</title>
 
@@ -1910,7 +1910,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Analysis of Raw GT3X files to Summary Measures in Chadwell et. al Data</h1>
 <h4 class="author">John Muschelli</h4>
-<h4 class="date">2020-11-30</h4>
+<h4 class="date">2021-01-14</h4>
 
 </div>
 
@@ -2898,15 +2898,15 @@ id = idf$id
 serial = idf$serial</code></pre>
 <pre class="r"><code>output = R.utils::gunzip(gt3x_file, remove = FALSE, temporary = TRUE, overwrite = TRUE)
 print(output)</code></pre>
-<pre><code>[1] &quot;/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T/RtmpyTG9T1/PU7_NEO1B41100262_2017-05-09.gt3x&quot;
+<pre><code>[1] &quot;/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T/Rtmp3N8Qws/PU7_NEO1B41100262_2017-05-09.gt3x&quot;
 attr(,&quot;nbrOfBytes&quot;)
 [1] 2544901</code></pre>
 <pre class="r"><code>zip::unzip(output, exdir = tempdir())
 out = file.path(tempdir(), zip::zip_list(output)$filename)
 print(out)</code></pre>
-<pre><code>[1] &quot;/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpyTG9T1/log.bin&quot;   
-[2] &quot;/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpyTG9T1/eeprom.bin&quot;
-[3] &quot;/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//RtmpyTG9T1/info.txt&quot;  </code></pre>
+<pre><code>[1] &quot;/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//Rtmp3N8Qws/log.bin&quot;   
+[2] &quot;/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//Rtmp3N8Qws/eeprom.bin&quot;
+[3] &quot;/var/folders/1s/wrtqcpxn685_zk570bnx9_rr0000gr/T//Rtmp3N8Qws/info.txt&quot;  </code></pre>
 <pre class="r"><code>info_file = out[grepl(&quot;info.txt&quot;, out)]</code></pre>
 <p>In the “new” format, we see only 2 files, <code>info.txt</code>, which holds the metadata/header information and <code>log.bin</code>, which holds the “data”. In the older NHANES format, <code>info.txt</code> is still present, but the different types of data (activity, light, battery, etc.) are in separate files and the main file for activity is <code>actviity.bin</code>.</p>
 <p>We see there is potentially identifiable elements in <code>info.txt</code>:</p>
