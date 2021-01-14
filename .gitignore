@@ -5,6 +5,7 @@ data/group_without_prosthesis
 data/group_with_prosthesis
 fs_token.rds
 index_cache/
+thresholds_cache/
 create_measures.R
 process.R
 data/filenames.rds
